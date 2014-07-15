@@ -1,0 +1,55 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.boardgametimer.MainActivity"
+    tools:ignore="MergeRootFrame" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="20dp" >
+
+		<TextView
+		    android:id="@+id/roundView"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_alignParentTop="true"
+		    android:layout_centerHorizontal="true"
+		    android:text="@string/initial_round"
+		    android:textAppearance="?android:attr/textAppearanceMedium" />
+		
+		<LinearLayout 
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_below="@+id/roundView"
+		    android:orientation="vertical"
+		    android:id="@+id/player_list" >
+		</LinearLayout>
+		
+            
+        <Button
+            android:id="@+id/timerButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom|center_vertical|center_horizontal"
+            android:text="@string/start" 
+            android:layout_alignParentBottom="true" />
+
+        <Button
+            android:id="@+id/passButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/timerButton"
+            android:layout_centerHorizontal="true"
+            android:text="@string/pass_turn"
+            android:visibility="invisible" />
+
+        
+
+    </RelativeLayout>
+
+</FrameLayout>
+

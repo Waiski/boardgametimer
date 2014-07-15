@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Board Game Timer</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="start">Start</string>
+    <string name="zero_time">00:00</string>
+    <string name="player_default_name">Player 1</string>
+    <string name="pass_turn">Pass turn</string>
+    <string name="set_game_time">Select game time</string>
+    <string name="select_game_time_per_player">Select game time per player</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="roundNo">Round</string>
+    <string name="initial_round">Round 1</string>
+
+</resources>

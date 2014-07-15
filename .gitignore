@@ -1,0 +1,25 @@
+# Eclipse files
+*.project
+*.classpath
+proguard/
+proguard*
+.settings
+
+# built files
+*.apk
+*.ap_
+*.dex
+
+# generated files
+gen/
+bin/
+
+# IntelliJ files
+*.iml
+*.ipr
+*.iws
+.idea/
+
+local.properties
+/project.properties
+*.log

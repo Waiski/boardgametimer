@@ -1,0 +1,190 @@
+package com.example.boardgametimer;
+
+import android.os.Handler;
+import android.os.Message;
+import android.os.SystemClock;
+import android.util.Log;
+
+
+//TODO: implement end-of-time logic
+
+public class Player {
+	private String name;
+	private long totalCountDown;
+	private long countDownInterval;
+	private GameTimerView timerView;
+	private Player next;
+	private Game game;
+	
+	private boolean isRunning;
+	private boolean isPaused;
+	private boolean hasPassed;
+	private boolean isFirst;
+	private static final String TAG = "Player";
+	private long stopTimeInFuture;
+	private long timeLeftWhenPaused;
+	
+	public Player(String name, long totalCountDown, long countDownInterval, GameTimerView timerView, Game game) {
+		this.name = name;
+		this.totalCountDown = totalCountDown;
+		this.timeLeftWhenPaused = totalCountDown;
+		this.countDownInterval = countDownInterval;
+		this.timerView = timerView;
+		this.game = game;
+		
+		this.isRunning = false;
+		this.isPaused = false;
+		this.hasPassed = false;
+		
+		this.timerView.setName(this.name);
+		this.timerView.setTime(totalCountDown);
+		this.timerView.setInactive();
+	}
+	
+	public void setFirst()
+	{
+		this.isFirst = true;
+	}
+	
+	public void setActive()
+	{
+		this.timerView.setActive();
+	}
+	
+	public Player setNext(Player next) {
+		this.next = next;
+		return this;
+	}
+	
+	public Player setTime(long timeInMillis) {
+		this.totalCountDown = timeInMillis;
+		this.timeLeftWhenPaused = timeInMillis;
+		this.timerView.setTime(timeInMillis);
+		return this;
+	}
+	
+	public Player endAction() {
+		this.pause();
+		//only set as inactive if not passed
+		if(!this.hasPassed)
+			this.timerView.setInactive();
+		//if the next player has already passed, try the next one
+		if (this.next.hasPassed)
+			return this.next.endAction();
+			
+		if (this.next.isPaused()) {
+			this.next.resume();
+		}
+		else 
+			this.next.resume();
+		return this.next;
+	}
+	
+	public Player passTurn() {
+		boolean lastPass = this.game.resolvePass(this);
+		if(!lastPass) {
+			this.hasPassed = true;
+			this.timerView.setPassed();
+			return this.endAction();
+		}
+		else {
+			this.game.nextRound();
+			return this.game.getFirstPlayer();
+		}
+	}
+	
+	/**
+	 * This is called in the end of the round.
+	 * @return
+	 */
+	public Player reset() {
+		this.hasPassed = false;
+		this.timerView.setInactive();
+		this.pause();
+		return this;
+	}
+	
+	public boolean hasPassed() {
+		return hasPassed;
+	}
+
+	public final synchronized Player start() {
+		this.isRunning = true;
+		this.isPaused = false;
+		this.timerView.setActive();
+		stopTimeInFuture = SystemClock.elapsedRealtime() + totalCountDown;
+		Log.i(TAG, this.name + " starting from " + totalCountDown);
+		handler.sendMessage(handler.obtainMessage(MSG));
+		return this;
+	}
+	
+	public final synchronized Player resume() {
+		this.isRunning = true;
+		this.isPaused = false;
+		this.timerView.setActive();
+		stopTimeInFuture = SystemClock.elapsedRealtime() + timeLeftWhenPaused;
+		Log.i(TAG, this.name +" resuming from " + timeLeftWhenPaused);
+		handler.sendMessage(handler.obtainMessage(MSG));
+		return this;
+	}
+	
+	public final synchronized void pause() {
+		this.isRunning = false;
+		this.isPaused = true;
+	}
+	
+	public boolean isPaused() {
+		return this.isPaused;
+	}
+	
+	public boolean isRunning() {
+		return this.isRunning;
+	}
+	
+	public void onTick(long millisUntilFinished)
+	{
+		this.timerView.setTime(millisUntilFinished);
+	}
+	
+	public void onFinish() {
+		this.timerView.setTime(0);
+		this.isRunning = false;
+	}
+	
+	private static final int MSG = 1;
+	
+	private Handler handler = new Handler() {
+		@Override
+		public void handleMessage(Message message)
+		{
+			synchronized (Player.this) {
+				
+				final long millisLeft = stopTimeInFuture - SystemClock.elapsedRealtime();
+				if(isPaused()) {
+					timeLeftWhenPaused = millisLeft;
+					Log.i(TAG, Player.this.getName() + " paused at " + timeLeftWhenPaused);
+					return;
+				}
+				if (millisLeft <= 0) {
+					onFinish();
+				}
+				else if (millisLeft < countDownInterval)
+					sendMessageDelayed(obtainMessage(MSG), millisLeft);
+				else {
+					long lastTickStart = SystemClock.elapsedRealtime();
+					onTick(millisLeft);
+					
+					long delay = lastTickStart + countDownInterval - SystemClock.elapsedRealtime();
+					while (delay < 0) delay += countDownInterval;
+					sendMessageDelayed(obtainMessage(MSG), delay);
+				}
+			}
+			
+		}
+	};
+
+	public String getName() {
+		return this.name;
+	}
+	
+}
