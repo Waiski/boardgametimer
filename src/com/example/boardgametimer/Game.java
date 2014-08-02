@@ -18,6 +18,7 @@ public class Game {
 	private long time;
 	private int round;
 	private boolean onBreak;
+    private boolean paused;
 	
 	public Game(long timeInMillis) {
 		this.time = timeInMillis;
@@ -26,6 +27,7 @@ public class Game {
 		this.firstPlayer = null;
 		this.round = FIRST_ROUND;
 		this.onBreak = true;
+        this.paused = false;
 	}
 	
 	public Game addPlayer(String name, Context context, LinearLayout root)
@@ -47,13 +49,27 @@ public class Game {
 	public Game start() {
 		this.lastAdded.setNext(this.firstPlayer);
 		this.onBreak = false;
+        this.paused = false;
 		return this;
 	}
 	
 	public Game resume() {
 		this.onBreak = false;
+        this.paused = false;
+        this.firstPlayer.resume();
 		return this;
 	}
+
+    public Game pause() {
+        this.paused = true;
+        for(Player player : this.players) {
+            if (player.isRunning()) {
+                this.firstPlayer = player.pause();
+                break;
+            }
+        }
+        return this;
+    }
 	
 	public void nextRound() {
 		this.round++;
@@ -66,6 +82,10 @@ public class Game {
 	public boolean isOnBreak() {
 		return this.onBreak;
 	}
+
+    public boolean isPaused() {
+        return this.paused;
+    }
 	
 	public void setFirstPlayer(Player player) {
 		player.setFirst();
@@ -84,6 +104,8 @@ public class Game {
 		this.time = timeInMillis;
 		for(Player player : this.players)
 			player.setTime(timeInMillis);
+        if (this.isPaused())
+            resume();
 	}
 	
 	/**

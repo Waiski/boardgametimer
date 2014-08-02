@@ -48,7 +48,6 @@ public class MainActivity extends Activity {
 					roundView.setText(getResources().getString(R.string.roundNo)+" "+game.getRound());
 					passButton.setVisibility(View.VISIBLE);
 					game.resume();
-					currentPlayer.resume();
 				}
 			}
 		});
@@ -85,6 +84,8 @@ public class MainActivity extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         TimeSelectorDialogFragment df = new TimeSelectorDialogFragment();
+        if (!this.game.isOnBreak())
+            this.game.pause();
         df.show(getFragmentManager(), "dialog");
         if (id == R.id.action_settings) {
             return true;
