@@ -23,12 +23,17 @@ public class Player {
 	private static final String TAG = "Player";
 	private long stopTimeInFuture;
 	private long timeLeftWhenPaused;
+    private long timeUsedTotal;
+    private long timeUsedThisTurn;
+    private long turnStartTime;
 	
 	public Player(String name, long totalCountDown, long countDownInterval, GameTimerView timerView, Game game) {
 		this.name = name;
 		this.totalCountDown = totalCountDown;
 		this.timeLeftWhenPaused = totalCountDown;
 		this.countDownInterval = countDownInterval;
+        this.timeUsedTotal = 0;
+        this.timeUsedThisTurn = 0;
 		this.timerView = timerView;
 		this.game = game;
 		
@@ -57,9 +62,9 @@ public class Player {
 	}
 	
 	public Player setTime(long timeInMillis) {
-		this.totalCountDown = timeInMillis;
-		this.timeLeftWhenPaused = timeInMillis;
-		this.timerView.setTime(timeInMillis);
+		this.totalCountDown = timeInMillis - this.timeUsedTotal;
+		this.timeLeftWhenPaused = timeInMillis - this.timeUsedTotal;
+		this.timerView.setTime(timeInMillis - this.timeUsedTotal);
 		return this;
 	}
 	
@@ -113,6 +118,7 @@ public class Player {
 		this.isPaused = false;
 		this.timerView.setActive();
 		stopTimeInFuture = SystemClock.elapsedRealtime() + totalCountDown;
+        turnStartTime = SystemClock.elapsedRealtime();
 		Log.i(TAG, this.name + " starting from " + totalCountDown);
 		handler.sendMessage(handler.obtainMessage(MSG));
 		return this;
@@ -123,14 +129,16 @@ public class Player {
 		this.isPaused = false;
 		this.timerView.setActive();
 		stopTimeInFuture = SystemClock.elapsedRealtime() + timeLeftWhenPaused;
+        turnStartTime = SystemClock.elapsedRealtime();
 		Log.i(TAG, this.name +" resuming from " + timeLeftWhenPaused);
 		handler.sendMessage(handler.obtainMessage(MSG));
 		return this;
 	}
 	
-	public final synchronized void pause() {
+	public final synchronized Player pause() {
 		this.isRunning = false;
 		this.isPaused = true;
+        return this;
 	}
 	
 	public boolean isPaused() {
@@ -160,8 +168,10 @@ public class Player {
 			synchronized (Player.this) {
 				
 				final long millisLeft = stopTimeInFuture - SystemClock.elapsedRealtime();
+                timeUsedThisTurn = SystemClock.elapsedRealtime() - turnStartTime;
 				if(isPaused()) {
 					timeLeftWhenPaused = millisLeft;
+                    timeUsedTotal += timeUsedThisTurn;
 					Log.i(TAG, Player.this.getName() + " paused at " + timeLeftWhenPaused);
 					return;
 				}
