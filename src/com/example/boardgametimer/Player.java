@@ -24,7 +24,6 @@ public class Player {
 	private long stopTimeInFuture;
 	private long timeLeftWhenPaused;
     private long timeUsedTotal;
-    private long timeUsedThisTurn;
     private long turnStartTime;
 	
 	public Player(String name, long totalCountDown, long countDownInterval, GameTimerView timerView, Game game) {
@@ -33,7 +32,6 @@ public class Player {
 		this.timeLeftWhenPaused = totalCountDown;
 		this.countDownInterval = countDownInterval;
         this.timeUsedTotal = 0;
-        this.timeUsedThisTurn = 0;
 		this.timerView = timerView;
 		this.game = game;
 		
@@ -168,7 +166,7 @@ public class Player {
 			synchronized (Player.this) {
 				
 				final long millisLeft = stopTimeInFuture - SystemClock.elapsedRealtime();
-                timeUsedThisTurn = SystemClock.elapsedRealtime() - turnStartTime;
+                long timeUsedThisTurn = SystemClock.elapsedRealtime() - turnStartTime;
 				if(isPaused()) {
 					timeLeftWhenPaused = millisLeft;
                     timeUsedTotal += timeUsedThisTurn;
