@@ -16,20 +16,12 @@
 		    android:id="@+id/roundView"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:layout_alignParentTop="true"
+            android:layout_alignBottom="@+id/pauseButton"
 		    android:layout_centerHorizontal="true"
 		    android:text="@string/initial_round"
 		    android:textAppearance="?android:attr/textAppearanceMedium" />
-		
-		<LinearLayout 
-		    android:layout_width="match_parent"
-		    android:layout_height="wrap_content"
-		    android:layout_below="@+id/roundView"
-		    android:orientation="vertical"
-		    android:id="@+id/player_list" >
-		</LinearLayout>
-		
-            
+
+
         <Button
             android:id="@+id/timerButton"
             android:layout_width="match_parent"
@@ -47,9 +39,60 @@
             android:text="@string/pass_turn"
             android:visibility="invisible" />
 
-        
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/pauseButton"
+            android:layout_toStartOf="@+id/roundView"
+            android:src="@android:drawable/ic_media_pause"
+            style="@android:style/Widget.ActionButton"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:tint="@android:color/black"
+            android:contentDescription="@string/pause"
+            android:visibility="invisible"
+            android:cropToPadding="true" />
+
+        <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/playerList"
+            android:layout_below="@+id/roundView"
+            android:layout_alignParentEnd="true"
+            tools:listitem="@layout/timer_view"
+            android:layout_above="@+id/passButton" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/nameView"
+            android:layout_alignBottom="@+id/playerList"
+            android:layout_centerHorizontal="true" />
+
 
     </RelativeLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_gravity="right|top"
+        android:id="@+id/pauseOverlay"
+        android:background="#C0000000"
+        android:visibility="invisible">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/game_paused"
+            android:id="@+id/pauseText"
+            android:textSize="50sp"
+            android:layout_gravity="center"
+            android:layout_marginTop="150dp"
+            android:textColor="@color/white"
+            android:textStyle="bold" />
+    </LinearLayout>
 
 </FrameLayout>
 

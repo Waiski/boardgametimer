@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -47,10 +48,10 @@ public class GameTimerView extends RelativeLayout {
 	
 	public void setTime(long timeInMillis) {
 		timerView.setText(String.format("%02d:%02d",
-				TimeUnit.MILLISECONDS.toMinutes(timeInMillis),
-				TimeUnit.MILLISECONDS.toSeconds(timeInMillis)-
-				TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(timeInMillis))
-				));
+                TimeUnit.MILLISECONDS.toMinutes(timeInMillis),
+                TimeUnit.MILLISECONDS.toSeconds(timeInMillis) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(timeInMillis))
+        ));
 	}
 	
 	public void setName(String name) {
@@ -58,7 +59,7 @@ public class GameTimerView extends RelativeLayout {
 	}
 	
 	public void setActive() {
-		nameView.setTextColor(Color.GREEN);
+		this.nameView.setTextColor(Color.GREEN);
 	}
 	
 	public void setInactive() {

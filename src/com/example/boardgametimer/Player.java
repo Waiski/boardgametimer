@@ -26,23 +26,25 @@ public class Player {
     private long timeUsedTotal;
     private long turnStartTime;
 	
-	public Player(String name, long totalCountDown, long countDownInterval, GameTimerView timerView, Game game) {
+	public Player(String name, long totalCountDown, long countDownInterval, Game game) {
 		this.name = name;
 		this.totalCountDown = totalCountDown;
 		this.timeLeftWhenPaused = totalCountDown;
 		this.countDownInterval = countDownInterval;
         this.timeUsedTotal = 0;
-		this.timerView = timerView;
 		this.game = game;
 		
 		this.isRunning = false;
 		this.isPaused = false;
 		this.hasPassed = false;
-		
-		this.timerView.setName(this.name);
-		this.timerView.setTime(totalCountDown);
-		this.timerView.setInactive();
 	}
+
+    public void setTimerView(GameTimerView timer) {
+        this.timerView = timer;
+        this.timerView.setName(this.name);
+        this.timerView.setTime(totalCountDown);
+        this.timerView.setInactive();
+    }
 	
 	public void setFirst()
 	{

@@ -14,6 +14,7 @@ public class Game {
 	private static final int FIRST_ROUND=1;
 	private ArrayList<Player> players;
 	private Player firstPlayer;
+	private Player pausedPlayer;
 	private Player lastAdded;
 	private long time;
 	private int round;
@@ -30,11 +31,9 @@ public class Game {
         this.paused = false;
 	}
 	
-	public Game addPlayer(String name, Context context, LinearLayout root)
+	public Game addPlayer(String name)
 	{
-		GameTimerView timerView = new GameTimerView(context);
-		root.addView(timerView);
-		Player player = new Player(name, this.time, COUNTDOWN_INTERVAL, timerView, this);
+		Player player = new Player(name, this.time, COUNTDOWN_INTERVAL, this);
 		//set the first added player as the first player
 		if(players.isEmpty())
 			this.setFirstPlayer(player);
@@ -48,15 +47,16 @@ public class Game {
 	
 	public Game start() {
 		this.lastAdded.setNext(this.firstPlayer);
-		this.onBreak = false;
-        this.paused = false;
 		return this;
 	}
 	
 	public Game resume() {
 		this.onBreak = false;
+        if (this.paused)
+            this.pausedPlayer.resume();
+        else
+            this.firstPlayer.resume();
         this.paused = false;
-        this.firstPlayer.resume();
 		return this;
 	}
 
@@ -64,7 +64,7 @@ public class Game {
         this.paused = true;
         for(Player player : this.players) {
             if (player.isRunning()) {
-                this.firstPlayer = player.pause();
+                this.pausedPlayer = player.pause();
                 break;
             }
         }
@@ -99,13 +99,15 @@ public class Game {
 	public int getRound() {
 		return this.round;
 	}
-	
+
+    public ArrayList<Player> getPlayers() {
+        return this.players;
+    }
+
 	public void setTime(long timeInMillis) {
 		this.time = timeInMillis;
 		for(Player player : this.players)
 			player.setTime(timeInMillis);
-        if (this.isPaused())
-            resume();
 	}
 	
 	/**
