@@ -57,7 +57,8 @@ public class MainActivity extends Activity {
 			public void onClick(View arg0) {
 				currentPlayer = currentPlayer.passTurn();
 				if (game.isOnBreak()) {
-					timerButton.setText("Start");
+                    roundView.append(" ended");
+					timerButton.setText("Start round "+game.getRound());
 					passButton.setVisibility(View.INVISIBLE);
 				}
 			}
