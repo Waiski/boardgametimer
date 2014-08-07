@@ -39,7 +39,7 @@ public class MainActivity extends Activity {
         game.addPlayer("Kristian S.");
         game.addPlayer("Valtter V.");
 
-        playerArrayAdapter playersAdapter = new playerArrayAdapter(
+        PlayerArrayAdapter playersAdapter = new PlayerArrayAdapter(
                 getApplicationContext(),
                 game.getPlayers()
         );

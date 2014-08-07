@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
-public class playerArrayAdapter extends ArrayAdapter<Player> {
+public class PlayerArrayAdapter extends ArrayAdapter<Player> {
     private final Context context;
     private final ArrayList<Player> players;
     /*
@@ -16,7 +16,7 @@ public class playerArrayAdapter extends ArrayAdapter<Player> {
     * */
     private final ArrayList<GameTimerView> views;
 
-    public playerArrayAdapter(Context context, ArrayList<Player> values) {
+    public PlayerArrayAdapter(Context context, ArrayList<Player> values) {
         super(context, R.layout.timer_view, values);
         this.context = context;
         this.players = values;
