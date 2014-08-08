@@ -110,8 +110,9 @@ public class GameFragment extends Fragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        setHasOptionsMenu(true);
+        
         game = new Game(60*60*1000);
-
         game.addPlayer("Matti V.");
         game.addPlayer("Ilari A.");
         game.addPlayer("Kristian S.");
@@ -138,6 +139,7 @@ public class GameFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // Inflate the menu; this adds items to the action bar if it is present.
+    	super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.options_menu, menu);
     }
 

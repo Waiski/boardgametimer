@@ -39,9 +39,7 @@ public class TimeSelectorDialogFragment extends DialogFragment {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				MainActivity activity = (MainActivity)getActivity();
-				//TODO: make this work again
-				//activity.setTime(hourPicker.getValue(), minutePicker.getValue());
-				
+				activity.setTime(hourPicker.getValue(), minutePicker.getValue());
 			}
 		});
 		return builder.create();

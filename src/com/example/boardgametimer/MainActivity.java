@@ -36,6 +36,10 @@ public class MainActivity extends FragmentActivity {
         	fm.beginTransaction().add(R.id.fragment_container, (Fragment)fragment, TAG_GAME_FRAGMENT).commit();
         }
     }
+    
+    public void setTime(int hours, int minutes) {
+    	fragment.setTime(hours, minutes);
+    }
 
     
 
