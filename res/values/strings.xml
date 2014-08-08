@@ -16,5 +16,8 @@
     <string name="initial_round">Round 1</string>
     <string name="pause">Pause game</string>
     <string name="game_paused">Game paused</string>
+    <string name="ended">ended.</string>
+    <string name="start_round">Start round</string>
+    <string name="next">Next</string>
 
 </resources>

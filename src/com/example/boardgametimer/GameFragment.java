@@ -34,7 +34,28 @@ public class GameFragment extends Fragment {
         pauseButton = (ImageButton)view.findViewById(R.id.pauseButton);
         roundView = (TextView)view.findViewById(R.id.roundView);
         pauseOverlay = (LinearLayout)view.findViewById(R.id.pauseOverlay);
-
+        
+        if(!game.isOnBreak()) {
+        	roundView.setText(getResources().getString(R.string.roundNo) + " " + game.getRound());
+        	passButton.setVisibility(View.VISIBLE);
+        	pauseButton.setVisibility(View.VISIBLE);
+        }
+        else {
+        	if(game.getRound()>1) {
+        		roundView.setText(getResources().getString(R.string.roundNo) + " " + 
+        									(game.getRound()-1) + " " + 
+        									getResources().getString(R.string.ended));
+        	}
+        	else {
+        		roundView.setText(getResources().getString(R.string.roundNo) + " " + game.getRound());
+        	}
+        	timerButton.setText(getResources().getString(R.string.next));
+        	passButton.setVisibility(View.INVISIBLE);
+        	pauseButton.setVisibility(View.INVISIBLE);
+        	timerButton.setText(getResources().getString(R.string.start_round)+" "+game.getRound());
+        }
+        
+        //set listeners for buttons
         timerButton.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
@@ -43,7 +64,7 @@ public class GameFragment extends Fragment {
 					currentPlayer = currentPlayer.endAction();
 				}
 				else {
-					timerButton.setText("Next");
+					timerButton.setText(getResources().getString(R.string.next));
 					roundView.setText(getResources().getString(R.string.roundNo) + " " + game.getRound());
 					passButton.setVisibility(View.VISIBLE);
                     pauseButton.setVisibility(View.VISIBLE);
@@ -57,8 +78,8 @@ public class GameFragment extends Fragment {
 			public void onClick(View arg0) {
 				currentPlayer = currentPlayer.passTurn();
 				if (game.isOnBreak()) {
-                    roundView.append(" ended");
-					timerButton.setText("Start round "+game.getRound());
+                    roundView.append(" " + getResources().getString(R.string.ended));
+                    timerButton.setText(getResources().getString(R.string.start_round)+" "+game.getRound());
 					passButton.setVisibility(View.INVISIBLE);
                     pauseButton.setVisibility(View.INVISIBLE);
 				}
