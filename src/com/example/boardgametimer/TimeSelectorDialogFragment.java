@@ -2,10 +2,10 @@ package com.example.boardgametimer;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.NumberPicker;
@@ -39,7 +39,8 @@ public class TimeSelectorDialogFragment extends DialogFragment {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				MainActivity activity = (MainActivity)getActivity();
-				activity.setTime(hourPicker.getValue(), minutePicker.getValue());
+				//TODO: make this work again
+				//activity.setTime(hourPicker.getValue(), minutePicker.getValue());
 				
 			}
 		});
