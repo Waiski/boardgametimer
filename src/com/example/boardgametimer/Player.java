@@ -1,5 +1,7 @@
 package com.example.boardgametimer;
 
+import java.lang.ref.WeakReference;
+
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
@@ -161,37 +163,40 @@ public class Player {
 	
 	private static final int MSG = 1;
 	
-	private Handler handler = new Handler() {
-		@Override
-		public void handleMessage(Message message)
-		{
-			 synchronized (Player.this) {
-				
-				final long millisLeft = stopTimeInFuture - SystemClock.elapsedRealtime();
-                long timeUsedThisTurn = SystemClock.elapsedRealtime() - turnStartTime;
-				if(isPaused()) {
-					timeLeftWhenPaused = millisLeft;
-                    timeUsedTotal += timeUsedThisTurn;
-					Log.i(TAG, Player.this.getName() + " paused at " + timeLeftWhenPaused);
-					return;
-				}
-				if (millisLeft <= 0) {
-					onFinish();
-				}
-				else if (millisLeft < countDownInterval)
-					sendMessageDelayed(obtainMessage(MSG), millisLeft);
-				else {
-					long lastTickStart = SystemClock.elapsedRealtime();
-					onTick(millisLeft);
-					
-					long delay = lastTickStart + countDownInterval - SystemClock.elapsedRealtime();
-					while (delay < 0) delay += countDownInterval;
-					sendMessageDelayed(obtainMessage(MSG), delay);
-				}
-			}
-			
+	private static class TimerHandler extends Handler {
+		private final WeakReference<Player> player;
+		
+		public TimerHandler(Player player) {
+			this.player = new WeakReference<Player>(player);
 		}
-	};
+		@Override
+		public synchronized void handleMessage(Message message) {
+			Player player = this.player.get();
+			final long millisLeft = player.stopTimeInFuture - SystemClock.elapsedRealtime();
+            long timeUsedThisTurn = SystemClock.elapsedRealtime() - player.turnStartTime;
+			if(player.isPaused()) {
+				player.timeLeftWhenPaused = millisLeft;
+                player.timeUsedTotal += timeUsedThisTurn;
+				Log.i(TAG, player.getName() + " paused at " + player.timeLeftWhenPaused);
+				return;
+			}
+			if (millisLeft <= 0) {
+				player.onFinish();
+			}
+			else if (millisLeft < player.countDownInterval)
+				sendMessageDelayed(obtainMessage(MSG), millisLeft);
+			else {
+				long lastTickStart = SystemClock.elapsedRealtime();
+				player.onTick(millisLeft);
+				
+				long delay = lastTickStart + player.countDownInterval - SystemClock.elapsedRealtime();
+				while (delay < 0) delay += player.countDownInterval;
+				sendMessageDelayed(obtainMessage(MSG), delay);
+			}
+		}
+	}
+	
+	private Handler handler = new TimerHandler(this);
 
 	public String getName() {
 		return this.name;
