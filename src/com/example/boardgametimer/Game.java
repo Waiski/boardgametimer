@@ -83,7 +83,6 @@ public class Game {
     }
 	
 	public void setFirstPlayer(Player player) {
-		player.setFirst();
 		this.firstPlayer = player;
 	}
 	

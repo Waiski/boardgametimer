@@ -21,7 +21,6 @@ public class Player {
 	private boolean isRunning;
 	private boolean isPaused;
 	private boolean hasPassed;
-	private boolean isFirst;
 	private static final String TAG = "Player";
 	private long stopTimeInFuture;
 	private long timeLeftWhenPaused;
@@ -47,11 +46,6 @@ public class Player {
         this.timerView.setTime(totalCountDown);
         this.timerView.setInactive();
     }
-	
-	public void setFirst()
-	{
-		this.isFirst = true;
-	}
 	
 	public void setActive()
 	{

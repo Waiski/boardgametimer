@@ -15,7 +15,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class GameFragment extends Fragment {
-	private static final String TAG = "GameFragment";
 	
 	private Button timerButton, passButton;
     private ImageButton pauseButton;
