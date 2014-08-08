@@ -2,7 +2,6 @@ package com.example.boardgametimer;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.app.DialogFragment;

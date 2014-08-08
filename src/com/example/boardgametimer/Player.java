@@ -165,7 +165,7 @@ public class Player {
 		@Override
 		public void handleMessage(Message message)
 		{
-			synchronized (Player.this) {
+			 synchronized (Player.this) {
 				
 				final long millisLeft = stopTimeInFuture - SystemClock.elapsedRealtime();
                 long timeUsedThisTurn = SystemClock.elapsedRealtime() - turnStartTime;
