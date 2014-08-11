@@ -23,10 +23,11 @@ public class GameFragment extends Fragment {
 	private Game game;
 	private Player currentPlayer;
 	private PlayerArrayAdapter playersAdapter;
+    private ListView playersView;
 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) { 
 		final View view = inflater.inflate(R.layout.fragment_main, container, false);
-		ListView playersView = (ListView) view.findViewById(R.id.playerList);
+		playersView = (ListView) view.findViewById(R.id.playerList);
 		playersView.setAdapter(playersAdapter);
 		timerButton = (Button)view.findViewById(R.id.timerButton);
         passButton = (Button)view.findViewById(R.id.passButton);
@@ -62,6 +63,7 @@ public class GameFragment extends Fragment {
 			public void onClick(View v) {
 				if (currentPlayer.isRunning()) {
 					currentPlayer = currentPlayer.endAction();
+                    showCurrentPlayer();
 				}
 				else {
 					timerButton.setText(getResources().getString(R.string.next));
@@ -77,6 +79,7 @@ public class GameFragment extends Fragment {
 			@Override
 			public void onClick(View arg0) {
 				currentPlayer = currentPlayer.passTurn();
+                showCurrentPlayer();
 				if (game.isOnBreak()) {
                     roundView.append(" " + getResources().getString(R.string.ended));
                     timerButton.setText(getResources().getString(R.string.start_round)+" "+game.getRound());
@@ -106,6 +109,13 @@ public class GameFragment extends Fragment {
         });
 		return view;
 	}
+
+    /*
+     * Scrolls the list to the position of the current player
+     */
+    public void showCurrentPlayer() {
+        playersView.smoothScrollToPosition(playersAdapter.getPosition(currentPlayer));
+    }
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

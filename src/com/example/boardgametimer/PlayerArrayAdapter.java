@@ -36,7 +36,7 @@ public class PlayerArrayAdapter extends ArrayAdapter<Player> {
         }
         playerView = new GameTimerView(context);
         views.add(position, playerView);
-        players.get(position).setTimerView(playerView);
+        getItem(position).setTimerView(playerView);
         return playerView;
     }
 }
