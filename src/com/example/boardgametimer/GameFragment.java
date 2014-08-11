@@ -2,12 +2,14 @@ package com.example.boardgametimer;
 
 import android.os.Bundle;
 import android.app.Fragment;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -22,6 +24,7 @@ public class GameFragment extends Fragment {
     private LinearLayout pauseOverlay;
 	private Game game;
 	private Player currentPlayer;
+    private Player interruptedPlayer;
 	private PlayerArrayAdapter playersAdapter;
     private ListView playersView;
 
@@ -29,6 +32,7 @@ public class GameFragment extends Fragment {
 		final View view = inflater.inflate(R.layout.fragment_main, container, false);
 		playersView = (ListView) view.findViewById(R.id.playerList);
 		playersView.setAdapter(playersAdapter);
+        registerForContextMenu(playersView);
 		timerButton = (Button)view.findViewById(R.id.timerButton);
         passButton = (Button)view.findViewById(R.id.passButton);
         pauseButton = (ImageButton)view.findViewById(R.id.pauseButton);
@@ -62,7 +66,11 @@ public class GameFragment extends Fragment {
 			@Override
 			public void onClick(View v) {
 				if (currentPlayer.isRunning()) {
-					currentPlayer = currentPlayer.endAction();
+                    if (interruptedPlayer == null)
+					    currentPlayer = currentPlayer.endAction();
+                    else
+                        currentPlayer = currentPlayer.endAction(interruptedPlayer);
+                    interruptedPlayer = null;
                     showCurrentPlayer();
 				}
 				else {
@@ -78,7 +86,11 @@ public class GameFragment extends Fragment {
 			
 			@Override
 			public void onClick(View arg0) {
-				currentPlayer = currentPlayer.passTurn();
+                if (interruptedPlayer == null)
+                    currentPlayer = currentPlayer.passTurn();
+                else
+                    currentPlayer = currentPlayer.passTurn(interruptedPlayer);
+                interruptedPlayer = null;
                 showCurrentPlayer();
 				if (game.isOnBreak()) {
                     roundView.append(" " + getResources().getString(R.string.ended));
@@ -144,6 +156,36 @@ public class GameFragment extends Fragment {
         // Resume the game if it was previously paused by something other than the pause button
         if (!game.isOnBreak() && game.isPaused() && pauseOverlay.getVisibility() != View.VISIBLE)
             game.resume();
+    }
+
+    public void activatePlayer(Player newActivePlayer) {
+        if (!game.isOnBreak() && newActivePlayer != currentPlayer) {
+            interruptedPlayer = currentPlayer.interrupt();
+            currentPlayer = newActivePlayer.resume();
+        }
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater mInflater = getActivity().getMenuInflater();
+        mInflater.inflate(R.menu.player_context_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.set_player_active:
+                activatePlayer(playersAdapter.getItem(info.position));
+                return true;
+            case R.id.add_time:
+                return true;
+            case R.id.subtract_time:
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
     }
     
     @Override

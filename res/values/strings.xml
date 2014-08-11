@@ -18,4 +18,7 @@
     <string name="start">Start</string>
     <string name="start_round">Start round</string>
     <string name="zero_time">00:00</string>
+    <string name="set_player_active">Activate player</string>
+    <string name="add_time">Give time bonus</string>
+    <string name="subtract_time">Give time penalty</string>
 </resources>
