@@ -38,6 +38,7 @@ public class GameFragment extends Fragment {
         	roundView.setText(getResources().getString(R.string.roundNo) + " " + game.getRound());
         	passButton.setVisibility(View.VISIBLE);
         	pauseButton.setVisibility(View.VISIBLE);
+        	timerButton.setText(getResources().getString(R.string.next));
         }
         else {
         	if(game.getRound()>1) {
