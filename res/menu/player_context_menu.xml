@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/set_player_active"
+        android:title="@string/set_player_active"/>
+    <item android:id="@+id/add_time"
+        android:title="@string/add_time"/>
+    <item android:id="@+id/subtract_time"
+        android:title="@string/subtract_time"/>
+</menu>

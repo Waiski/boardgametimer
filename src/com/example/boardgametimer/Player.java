@@ -65,34 +65,40 @@ public class Player {
 	}
 	
 	public Player endAction() {
-		this.pause();
-		//only set as inactive if not passed
-		if(!this.hasPassed)
-			this.timerView.setInactive();
-		//if the next player has already passed, try the next one
-		if (this.next.hasPassed)
-			return this.next.endAction();
-			
-		if (this.next.isPaused()) {
-			this.next.resume();
-		}
-		else 
-			this.next.resume();
-		return this.next;
+		return endAction(this.next);
 	}
+
+    public Player endAction(Player nextPlayer) {
+        this.pause();
+        //only set as inactive if not passed
+        if (!this.hasPassed)
+            this.timerView.setInactive();
+        else
+            this.timerView.setPassed();
+        //if the next player has already passed, try the next one
+        if (nextPlayer.hasPassed)
+            return nextPlayer.endAction();
+
+        nextPlayer.resume();
+        return nextPlayer;
+    }
 	
 	public Player passTurn() {
-		boolean lastPass = this.game.resolvePass(this);
-		if(!lastPass) {
-			this.hasPassed = true;
-			this.timerView.setPassed();
-			return this.endAction();
-		}
-		else {
-			this.game.nextRound();
-			return this.game.getFirstPlayer();
-		}
+		return passTurn(this.next);
 	}
+
+    public Player passTurn(Player nextPlayer) {
+        boolean lastPass = this.game.resolvePass(this);
+        if(!lastPass) {
+            this.hasPassed = true;
+            this.timerView.setPassed();
+            return this.endAction(nextPlayer);
+        }
+        else {
+            this.game.nextRound();
+            return this.game.getFirstPlayer();
+        }
+    }
 	
 	/**
 	 * This is called in the end of the round.
@@ -136,6 +142,12 @@ public class Player {
 		this.isPaused = true;
         return this;
 	}
+
+    public final synchronized Player interrupt() {
+        timerView.setInactive();
+        pause();
+        return this;
+    }
 	
 	public boolean isPaused() {
 		return this.isPaused;
