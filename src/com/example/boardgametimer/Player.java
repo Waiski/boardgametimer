@@ -22,17 +22,16 @@ public class Player {
 	private boolean isPaused;
 	private boolean hasPassed;
 	private static final String TAG = "Player";
-	private long stopTimeInFuture;
-	private long timeLeftWhenPaused;
     private long timeUsedTotal;
     private long turnStartTime;
+    private long timeAdjustment;
 	
 	public Player(String name, long totalCountDown, long countDownInterval, Game game) {
 		this.name = name;
 		this.totalCountDown = totalCountDown;
-		this.timeLeftWhenPaused = totalCountDown;
 		this.countDownInterval = countDownInterval;
         this.timeUsedTotal = 0;
+        this.timeAdjustment = 0;
 		this.game = game;
 		
 		this.isRunning = false;
@@ -58,11 +57,16 @@ public class Player {
 	}
 	
 	public Player setTime(long timeInMillis) {
-		this.totalCountDown = timeInMillis - this.timeUsedTotal;
-		this.timeLeftWhenPaused = timeInMillis - this.timeUsedTotal;
-		this.timerView.setTime(timeInMillis - this.timeUsedTotal);
+		this.totalCountDown = timeInMillis;
+		this.timerView.setTime(timeInMillis + timeAdjustment - timeUsedTotal);
 		return this;
 	}
+
+    public Player adjustTime(long timeInMillis) {
+        this.timeAdjustment += timeInMillis;
+        this.timerView.setTime(totalCountDown + timeAdjustment - timeUsedTotal);
+        return this;
+    }
 	
 	public Player endAction() {
 		return endAction(this.next);
@@ -102,7 +106,7 @@ public class Player {
 	
 	/**
 	 * This is called in the end of the round.
-	 * @return
+	 * @return Player
 	 */
 	public Player reset() {
 		this.hasPassed = false;
@@ -119,9 +123,8 @@ public class Player {
 		this.isRunning = true;
 		this.isPaused = false;
 		this.timerView.setActive();
-		stopTimeInFuture = SystemClock.elapsedRealtime() + totalCountDown;
         turnStartTime = SystemClock.elapsedRealtime();
-		Log.i(TAG, this.name + " starting from " + totalCountDown);
+		Log.i(TAG, this.name + " starting from " + (totalCountDown + timeAdjustment));
 		handler.sendMessage(handler.obtainMessage(MSG));
 		return this;
 	}
@@ -130,9 +133,8 @@ public class Player {
 		this.isRunning = true;
 		this.isPaused = false;
 		this.timerView.setActive();
-		stopTimeInFuture = SystemClock.elapsedRealtime() + timeLeftWhenPaused;
         turnStartTime = SystemClock.elapsedRealtime();
-		Log.i(TAG, this.name +" resuming from " + timeLeftWhenPaused);
+		Log.i(TAG, this.name +" resuming from " + (totalCountDown + timeAdjustment - timeUsedTotal));
 		handler.sendMessage(handler.obtainMessage(MSG));
 		return this;
 	}
@@ -178,12 +180,14 @@ public class Player {
 		@Override
 		public synchronized void handleMessage(Message message) {
 			Player player = this.player.get();
-			final long millisLeft = player.stopTimeInFuture - SystemClock.elapsedRealtime();
             long timeUsedThisTurn = SystemClock.elapsedRealtime() - player.turnStartTime;
-			if(player.isPaused()) {
-				player.timeLeftWhenPaused = millisLeft;
+            long millisLeft = player.totalCountDown
+                            + player.timeAdjustment
+                            - player.timeUsedTotal
+                            - timeUsedThisTurn;
+			if (player.isPaused()) {
                 player.timeUsedTotal += timeUsedThisTurn;
-				Log.i(TAG, player.getName() + " paused at " + player.timeLeftWhenPaused);
+				Log.i(TAG, player.getName() + " paused at " + millisLeft);
 				return;
 			}
 			if (millisLeft <= 0) {
@@ -194,8 +198,9 @@ public class Player {
 			else {
 				long lastTickStart = SystemClock.elapsedRealtime();
 				player.onTick(millisLeft);
-				
+				// Take onTick execution time into account
 				long delay = lastTickStart + player.countDownInterval - SystemClock.elapsedRealtime();
+                // If onTick has lasted longer than countDownInterval
 				while (delay < 0) delay += player.countDownInterval;
 				sendMessageDelayed(obtainMessage(MSG), delay);
 			}

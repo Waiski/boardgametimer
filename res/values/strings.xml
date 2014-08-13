@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="action_settings">Settings</string>
-    <string name="add_time">Give time bonus</string>
+    <string name="adjust_player_time">Add/subtract time for</string>
+    <string name="adjust_time">Adjust player time</string>
     <string name="app_name">Board Game Timer</string>
     <string name="cancel">Cancel</string>
     <string name="ended">ended.</string>
@@ -19,6 +20,5 @@
     <string name="set_player_active">Activate player</string>
     <string name="start">Start</string>
     <string name="start_round">Start round</string>
-    <string name="subtract_time">Give time penalty</string>
     <string name="zero_time">00:00</string>
 </resources>
