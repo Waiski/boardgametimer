@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 public class GameFragment extends Fragment {
 	
+	private View view;
 	private Button timerButton, passButton;
     private ImageButton pauseButton;
 	private TextView roundView;
@@ -29,7 +30,9 @@ public class GameFragment extends Fragment {
     private ListView playersView;
 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) { 
-		final View view = inflater.inflate(R.layout.fragment_main, container, false);
+        if (view != null)
+            return view;
+        view = inflater.inflate(R.layout.fragment_main, container, false);
 		playersView = (ListView) view.findViewById(R.id.playerList);
 		playersView.setAdapter(playersAdapter);
         registerForContextMenu(playersView);
@@ -38,27 +41,6 @@ public class GameFragment extends Fragment {
         pauseButton = (ImageButton)view.findViewById(R.id.pauseButton);
         roundView = (TextView)view.findViewById(R.id.roundView);
         pauseOverlay = (LinearLayout)view.findViewById(R.id.pauseOverlay);
-        
-        if(!game.isOnBreak()) {
-        	roundView.setText(getResources().getString(R.string.roundNo) + " " + game.getRound());
-        	passButton.setVisibility(View.VISIBLE);
-        	pauseButton.setVisibility(View.VISIBLE);
-        	timerButton.setText(getResources().getString(R.string.next));
-        }
-        else {
-        	if(game.getRound()>1) {
-        		roundView.setText(getResources().getString(R.string.roundNo) + " " + 
-        									(game.getRound()-1) + " " + 
-        									getResources().getString(R.string.ended));
-        	}
-        	else {
-        		roundView.setText(getResources().getString(R.string.roundNo) + " " + game.getRound());
-        	}
-        	timerButton.setText(getResources().getString(R.string.next));
-        	passButton.setVisibility(View.INVISIBLE);
-        	pauseButton.setVisibility(View.INVISIBLE);
-        	timerButton.setText(getResources().getString(R.string.start_round)+" "+game.getRound());
-        }
         
         //set listeners for buttons
         timerButton.setOnClickListener(new View.OnClickListener() {
