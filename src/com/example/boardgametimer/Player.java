@@ -19,31 +19,31 @@ public class Player {
 	private Game game;
 	
 	private boolean isRunning;
-	private boolean isPaused;
 	private boolean hasPassed;
+    private boolean isOutOfTime;
 	private static final String TAG = "Player";
-	private long stopTimeInFuture;
-	private long timeLeftWhenPaused;
     private long timeUsedTotal;
     private long turnStartTime;
+    private long timeAdjustment;
+    private long timeUsedThisTurn;
 	
 	public Player(String name, long totalCountDown, long countDownInterval, Game game) {
 		this.name = name;
 		this.totalCountDown = totalCountDown;
-		this.timeLeftWhenPaused = totalCountDown;
 		this.countDownInterval = countDownInterval;
         this.timeUsedTotal = 0;
+        this.timeAdjustment = 0;
+        this.timeUsedThisTurn = 0;
 		this.game = game;
 		
 		this.isRunning = false;
-		this.isPaused = false;
 		this.hasPassed = false;
 	}
 
     public void setTimerView(GameTimerView timer) {
         this.timerView = timer;
         this.timerView.setName(this.name);
-        this.timerView.setTime(totalCountDown);
+        updateTimer();
         this.timerView.setInactive();
     }
 	
@@ -58,11 +58,16 @@ public class Player {
 	}
 	
 	public Player setTime(long timeInMillis) {
-		this.totalCountDown = timeInMillis - this.timeUsedTotal;
-		this.timeLeftWhenPaused = timeInMillis - this.timeUsedTotal;
-		this.timerView.setTime(timeInMillis - this.timeUsedTotal);
+		this.totalCountDown = timeInMillis;
+        updateTimer();
 		return this;
 	}
+
+    public Player adjustTime(long timeInMillis) {
+        this.timeAdjustment += timeInMillis;
+        updateTimer();
+        return this;
+    }
 	
 	public Player endAction() {
 		return endAction(this.next);
@@ -102,7 +107,7 @@ public class Player {
 	
 	/**
 	 * This is called in the end of the round.
-	 * @return
+	 * @return Player
 	 */
 	public Player reset() {
 		this.hasPassed = false;
@@ -114,58 +119,62 @@ public class Player {
 	public boolean hasPassed() {
 		return hasPassed;
 	}
-
-	public final synchronized Player start() {
-		this.isRunning = true;
-		this.isPaused = false;
-		this.timerView.setActive();
-		stopTimeInFuture = SystemClock.elapsedRealtime() + totalCountDown;
-        turnStartTime = SystemClock.elapsedRealtime();
-		Log.i(TAG, this.name + " starting from " + totalCountDown);
-		handler.sendMessage(handler.obtainMessage(MSG));
-		return this;
-	}
 	
 	public final synchronized Player resume() {
 		this.isRunning = true;
-		this.isPaused = false;
 		this.timerView.setActive();
-		stopTimeInFuture = SystemClock.elapsedRealtime() + timeLeftWhenPaused;
         turnStartTime = SystemClock.elapsedRealtime();
-		Log.i(TAG, this.name +" resuming from " + timeLeftWhenPaused);
+		Log.i(TAG, this.name +" resuming from " + millisLeft());
 		handler.sendMessage(handler.obtainMessage(MSG));
 		return this;
 	}
 	
 	public final synchronized Player pause() {
-		this.isRunning = false;
-		this.isPaused = true;
+        if (isRunning) {
+            timeUsedTotal += SystemClock.elapsedRealtime() - turnStartTime;
+            timeUsedThisTurn = 0;
+            Log.i(TAG, name + " paused at " + millisLeft());
+            isRunning = false;
+        }
+        handler.removeMessages(MSG);
         return this;
 	}
 
     public final synchronized Player interrupt() {
         timerView.setInactive();
-        pause();
-        return this;
+        return pause();
     }
-	
-	public boolean isPaused() {
-		return this.isPaused;
-	}
 	
 	public boolean isRunning() {
 		return this.isRunning;
 	}
 	
-	public void onTick(long millisUntilFinished)
+	public void onTick()
 	{
-		this.timerView.setTime(millisUntilFinished);
+        updateTimer();
 	}
-	
-	public void onFinish() {
-		this.timerView.setTime(0);
-		this.isRunning = false;
-	}
+
+    public long millisLeft() {
+        return totalCountDown + timeAdjustment - timeUsedTotal - timeUsedThisTurn;
+    }
+
+    public void updateTimer() {
+        checkOutOfTime();
+        this.timerView.setTime(millisLeft());
+    }
+
+    public void checkOutOfTime() {
+        if (millisLeft() <= 0 && !isOutOfTime) {
+            this.timerView.setOutOfTime();
+            isOutOfTime = true;
+            return;
+        }
+        if (millisLeft() > 0 && isOutOfTime) {
+            this.timerView.setNotOutOfTime();
+            isOutOfTime = false;
+        }
+        return;
+    }
 	
 	private static final int MSG = 1;
 	
@@ -178,27 +187,14 @@ public class Player {
 		@Override
 		public synchronized void handleMessage(Message message) {
 			Player player = this.player.get();
-			final long millisLeft = player.stopTimeInFuture - SystemClock.elapsedRealtime();
-            long timeUsedThisTurn = SystemClock.elapsedRealtime() - player.turnStartTime;
-			if(player.isPaused()) {
-				player.timeLeftWhenPaused = millisLeft;
-                player.timeUsedTotal += timeUsedThisTurn;
-				Log.i(TAG, player.getName() + " paused at " + player.timeLeftWhenPaused);
-				return;
-			}
-			if (millisLeft <= 0) {
-				player.onFinish();
-			}
-			else if (millisLeft < player.countDownInterval)
-				sendMessageDelayed(obtainMessage(MSG), millisLeft);
-			else {
-				long lastTickStart = SystemClock.elapsedRealtime();
-				player.onTick(millisLeft);
-				
-				long delay = lastTickStart + player.countDownInterval - SystemClock.elapsedRealtime();
-				while (delay < 0) delay += player.countDownInterval;
-				sendMessageDelayed(obtainMessage(MSG), delay);
-			}
+            player.timeUsedThisTurn = SystemClock.elapsedRealtime() - player.turnStartTime;
+            long lastTickStart = SystemClock.elapsedRealtime();
+            player.onTick();
+            // Take onTick execution time into account
+            long delay = lastTickStart + player.countDownInterval - SystemClock.elapsedRealtime();
+            // If onTick has lasted longer than countDownInterval
+            while (delay < 0) delay += player.countDownInterval;
+            sendMessageDelayed(obtainMessage(MSG), delay);
 		}
 	}
 	

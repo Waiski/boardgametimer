@@ -46,7 +46,12 @@ public class GameTimerView extends RelativeLayout {
 	}
 	
 	public void setTime(long timeInMillis) {
-		timerView.setText(String.format("%02d:%02d",
+        String sign = "";
+        if (timeInMillis < 0) {
+            sign = "-";
+            timeInMillis *= -1;
+        }
+		timerView.setText(String.format(sign + "%02d:%02d",
                 TimeUnit.MILLISECONDS.toMinutes(timeInMillis),
                 TimeUnit.MILLISECONDS.toSeconds(timeInMillis) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(timeInMillis))
@@ -69,4 +74,11 @@ public class GameTimerView extends RelativeLayout {
 		nameView.setTextColor(Color.LTGRAY);
 	}
 
+    public void setOutOfTime() {
+        timerView.setTextColor(Color.RED);
+    }
+
+    public void setNotOutOfTime() {
+        timerView.setTextColor(Color.BLACK);
+    }
 }

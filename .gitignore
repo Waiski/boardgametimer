@@ -13,6 +13,8 @@ proguard*
 # generated files
 gen/
 bin/
+out/
+.navigation/
 
 # IntelliJ files
 *.iml

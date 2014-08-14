@@ -104,7 +104,7 @@ public class GameFragment extends Fragment {
 		return view;
 	}
 
-    /*
+    /**
      * Scrolls the list to the position of the current player
      */
     public void showCurrentPlayer() {
@@ -147,6 +147,12 @@ public class GameFragment extends Fragment {
         }
     }
 
+    public void changeTimeDialogForPlayer(Player player) {
+        PlayerTimeAdjustDialogFragment dialog = new PlayerTimeAdjustDialogFragment();
+        dialog.setPlayer(player);
+        dialog.show(getFragmentManager(), "adjust_time_fragment");
+    }
+
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
@@ -162,8 +168,7 @@ public class GameFragment extends Fragment {
                 activatePlayer(playersAdapter.getItem(info.position));
                 return true;
             case R.id.add_time:
-                return true;
-            case R.id.subtract_time:
+                changeTimeDialogForPlayer(playersAdapter.getItem(info.position));
                 return true;
             default:
                 return super.onContextItemSelected(item);
