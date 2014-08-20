@@ -35,6 +35,7 @@ public class Player {
         this.timeAdjustment = 0;
         this.timeUsedThisTurn = 0;
 		this.game = game;
+        this.timerView = null;
 		
 		this.isRunning = false;
 		this.hasPassed = false;
@@ -46,6 +47,10 @@ public class Player {
         updateTimer();
         this.timerView.setInactive();
     }
+
+    public GameTimerView getTimerView() {
+        return this.timerView;
+    }
 	
 	public void setActive()
 	{
@@ -56,6 +61,10 @@ public class Player {
 		this.next = next;
 		return this;
 	}
+
+    public Player getNext() {
+        return this.next;
+    }
 	
 	public Player setTime(long timeInMillis) {
 		this.totalCountDown = timeInMillis;

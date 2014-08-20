@@ -1,5 +1,7 @@
 package com.example.boardgametimer;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.view.ContextMenu;
@@ -47,15 +49,18 @@ public class GameFragment extends Fragment {
 			
 			@Override
 			public void onClick(View v) {
-				if (currentPlayer.isRunning()) {
+                if (!game.hasPlayers())
+                    return;
+				if (currentPlayer != null && currentPlayer.isRunning()) {
                     if (interruptedPlayer == null)
 					    currentPlayer = currentPlayer.endAction();
                     else
                         currentPlayer = currentPlayer.endAction(interruptedPlayer);
                     interruptedPlayer = null;
                     showCurrentPlayer();
-				}
-				else {
+				} else {
+                    // Begin a new round
+                    currentPlayer = game.getFirstPlayer();
 					timerButton.setText(getResources().getString(R.string.next));
 					roundView.setText(getResources().getString(R.string.roundNo) + " " + game.getRound());
 					passButton.setVisibility(View.VISIBLE);
@@ -68,6 +73,8 @@ public class GameFragment extends Fragment {
 			
 			@Override
 			public void onClick(View arg0) {
+                if (!game.hasPlayers())
+                    return;
                 if (interruptedPlayer == null)
                     currentPlayer = currentPlayer.passTurn();
                 else
@@ -75,6 +82,8 @@ public class GameFragment extends Fragment {
                 interruptedPlayer = null;
                 showCurrentPlayer();
 				if (game.isOnBreak()) {
+                    // End round
+                    currentPlayer = null;
                     roundView.append(" " + getResources().getString(R.string.ended));
                     timerButton.setText(getResources().getString(R.string.start_round)+" "+game.getRound());
 					passButton.setVisibility(View.INVISIBLE);
@@ -108,7 +117,8 @@ public class GameFragment extends Fragment {
      * Scrolls the list to the position of the current player
      */
     public void showCurrentPlayer() {
-        playersView.smoothScrollToPosition(playersAdapter.getPosition(currentPlayer));
+        if (currentPlayer != null)
+            playersView.smoothScrollToPosition(playersAdapter.getPosition(currentPlayer));
     }
 	
 	public void onCreate(Bundle savedInstanceState) {
@@ -128,8 +138,6 @@ public class GameFragment extends Fragment {
         );
         
         currentPlayer = game.getFirstPlayer();
-        game.start();
-        
     }
     
     public void setTime(int hours, int minutes) {
@@ -147,10 +155,45 @@ public class GameFragment extends Fragment {
         }
     }
 
+    /**
+     * Removes all traces of the player, so that the object is eligible for garbage collection
+     * @param player
+     */
+    public void removePlayer(Player player) {
+        if (player == interruptedPlayer)
+            interruptedPlayer = player.getNext();
+        // If removing the running (current) player, pass so that the game can resolve it's state properly
+        // This also unsets currentPlayer if this was the last player, and the game is put on break
+        if (player.isRunning())
+            passButton.performClick();
+
+        // Removing player from the game removes it from the adapter too, as they reference the same ArrayList<Player>
+        game.removePlayer(player);
+        // Notify the adapter to update the view
+        playersAdapter.notifyDataSetChanged();
+    }
+
+    public void removePlayerDialog(Player player) {
+        if (!this.game.isOnBreak())
+            this.game.pause();
+        PlayerRemoveDialogFragment dialog = new PlayerRemoveDialogFragment();
+        dialog.setPlayer(player);
+        dialog.setTargetFragment(this, 0);
+        dialog.show(getFragmentManager(), "remove_player_fragment");
+    }
+
     public void changeTimeDialogForPlayer(Player player) {
+        if (!this.game.isOnBreak())
+            this.game.pause();
         PlayerTimeAdjustDialogFragment dialog = new PlayerTimeAdjustDialogFragment();
         dialog.setPlayer(player);
+        dialog.setTargetFragment(this, 0);
         dialog.show(getFragmentManager(), "adjust_time_fragment");
+    }
+
+    public void onDismissDialog(DialogInterface dialog) {
+        if (!game.isOnBreak() && game.isPaused() && pauseOverlay.getVisibility() != View.VISIBLE)
+            game.resume();
     }
 
     @Override
@@ -163,12 +206,16 @@ public class GameFragment extends Fragment {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        Player selectedPlayer = playersAdapter.getItem(info.position);
         switch (item.getItemId()) {
             case R.id.set_player_active:
-                activatePlayer(playersAdapter.getItem(info.position));
+                activatePlayer(selectedPlayer);
                 return true;
             case R.id.add_time:
-                changeTimeDialogForPlayer(playersAdapter.getItem(info.position));
+                changeTimeDialogForPlayer(selectedPlayer);
+                return true;
+            case R.id.remove_player:
+                removePlayerDialog(selectedPlayer);
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -191,6 +238,7 @@ public class GameFragment extends Fragment {
         TimeSelectorDialogFragment df = new TimeSelectorDialogFragment();
         if (!this.game.isOnBreak())
             this.game.pause();
+        df.setTargetFragment(this, 0);
         df.show(getFragmentManager(), "dialog");
         if (id == R.id.action_settings) {
             return true;

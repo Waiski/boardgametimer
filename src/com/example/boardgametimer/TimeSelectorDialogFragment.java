@@ -37,11 +37,16 @@ public class TimeSelectorDialogFragment extends DialogFragment {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				MainActivity activity = (MainActivity)getActivity();
-				activity.setTime(hourPicker.getValue(), minutePicker.getValue());
+                ( (GameFragment) getTargetFragment() ).setTime(hourPicker.getValue(), minutePicker.getValue());
 			}
 		});
 		return builder.create();
 	}
+
+    @Override
+    public void onDismiss(final DialogInterface dialog) {
+        super.onDismiss(dialog);
+        ( (GameFragment) getTargetFragment() ).onDismissDialog(dialog);
+    }
 
 }
