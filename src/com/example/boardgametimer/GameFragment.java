@@ -1,6 +1,5 @@
 package com.example.boardgametimer;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -17,6 +16,11 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.example.boardgametimer.DialogFragments.PlayerRemoveDialogFragment;
+import com.example.boardgametimer.DialogFragments.PlayerTimeAdjustDialogFragment;
+import com.example.boardgametimer.DialogFragments.RetainedDialogFragment;
+import com.example.boardgametimer.DialogFragments.TimeSelectorDialogFragment;
 
 public class GameFragment extends Fragment {
 	
@@ -160,11 +164,12 @@ public class GameFragment extends Fragment {
      * @param player
      */
     public void removePlayer(Player player) {
+        System.out.println("Removing player: " + player.getName());
         if (player == interruptedPlayer)
             interruptedPlayer = player.getNext();
-        // If removing the running (current) player, pass so that the game can resolve it's state properly
+        // If removing the current player, pass so that the game can resolve it's state properly
         // This also unsets currentPlayer if this was the last player, and the game is put on break
-        if (player.isRunning())
+        if (player == currentPlayer)
             passButton.performClick();
 
         // Removing player from the game removes it from the adapter too, as they reference the same ArrayList<Player>
@@ -173,25 +178,30 @@ public class GameFragment extends Fragment {
         playersAdapter.notifyDataSetChanged();
     }
 
-    public void removePlayerDialog(Player player) {
-        if (!this.game.isOnBreak())
-            this.game.pause();
-        PlayerRemoveDialogFragment dialog = new PlayerRemoveDialogFragment();
-        dialog.setPlayer(player);
-        dialog.setTargetFragment(this, 0);
-        dialog.show(getFragmentManager(), "remove_player_fragment");
-    }
+    private final static String REMOVE_DIALOG_NAME = "player_remove_df";
+    private final static String PLAYER_TIME_ADJUST_DIALOG_NAME = "adjust_time_df";
+    private final static String TIME_SELECTOR_DIALOG_NAME = "game_time_selector_df";
 
-    public void changeTimeDialogForPlayer(Player player) {
-        if (!this.game.isOnBreak())
-            this.game.pause();
-        PlayerTimeAdjustDialogFragment dialog = new PlayerTimeAdjustDialogFragment();
-        dialog.setPlayer(player);
+    public void showDialog(String dialogName, Player player) {
+        if (!game.isOnBreak())
+            game.pause();
+        RetainedDialogFragment dialog;
+        if (dialogName.equals(REMOVE_DIALOG_NAME))
+            dialog = new PlayerRemoveDialogFragment();
+        else if (dialogName.equals(PLAYER_TIME_ADJUST_DIALOG_NAME))
+            dialog = new PlayerTimeAdjustDialogFragment();
+        else if (dialogName.equals(TIME_SELECTOR_DIALOG_NAME))
+            dialog = new TimeSelectorDialogFragment();
+        else
+            return;
+        if (player != null)
+            dialog.setPlayer(player);
         dialog.setTargetFragment(this, 0);
-        dialog.show(getFragmentManager(), "adjust_time_fragment");
+        dialog.show(getFragmentManager(), dialogName);
     }
 
     public void onDismissDialog(DialogInterface dialog) {
+        System.out.println("Dialog dismissed");
         if (!game.isOnBreak() && game.isPaused() && pauseOverlay.getVisibility() != View.VISIBLE)
             game.resume();
     }
@@ -212,10 +222,10 @@ public class GameFragment extends Fragment {
                 activatePlayer(selectedPlayer);
                 return true;
             case R.id.add_time:
-                changeTimeDialogForPlayer(selectedPlayer);
+                showDialog(PLAYER_TIME_ADJUST_DIALOG_NAME, selectedPlayer);
                 return true;
             case R.id.remove_player:
-                removePlayerDialog(selectedPlayer);
+                showDialog(REMOVE_DIALOG_NAME, selectedPlayer);
                 return true;
             default:
                 return super.onContextItemSelected(item);
@@ -235,14 +245,10 @@ public class GameFragment extends Fragment {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        TimeSelectorDialogFragment df = new TimeSelectorDialogFragment();
-        if (!this.game.isOnBreak())
-            this.game.pause();
-        df.setTargetFragment(this, 0);
-        df.show(getFragmentManager(), "dialog");
-        if (id == R.id.action_settings) {
+        if (id == R.id.time)
+            showDialog(TIME_SELECTOR_DIALOG_NAME, null);
+        else if (id == R.id.action_settings)
             return true;
-        }
         return super.onOptionsItemSelected(item);
     }
 

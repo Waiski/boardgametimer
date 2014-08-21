@@ -1,4 +1,4 @@
-package com.example.boardgametimer;
+package com.example.boardgametimer.DialogFragments;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -10,19 +10,11 @@ import android.view.View;
 import android.widget.NumberPicker;
 import android.widget.ToggleButton;
 
-public class PlayerTimeAdjustDialogFragment extends DialogFragment {
+import com.example.boardgametimer.GameFragment;
+import com.example.boardgametimer.Player;
+import com.example.boardgametimer.R;
 
-    private Player player;
-
-    /**
-     * This method will only be called once when the retained
-     * Fragment is first created.
-     */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRetainInstance(true);
-    }
+public class PlayerTimeAdjustDialogFragment extends RetainedDialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -58,26 +50,5 @@ public class PlayerTimeAdjustDialogFragment extends DialogFragment {
             }
         });
         return builder.create();
-    }
-
-    /**
-     * This fixes a bug that closes the dialog on screen rotation
-     * See: http://stackoverflow.com/questions/14657490/how-to-properly-retain-a-dialogfragment-through-rotation#answer-15444485
-     */
-    @Override
-    public void onDestroyView() {
-        if (getDialog() != null && getRetainInstance())
-            getDialog().setDismissMessage(null);
-        super.onDestroyView();
-    }
-
-    @Override
-    public void onDismiss(final DialogInterface dialog) {
-        super.onDismiss(dialog);
-        ( (GameFragment) getTargetFragment() ).onDismissDialog(dialog);
-    }
-
-    public void setPlayer(Player player) {
-        this.player = player;
     }
 }

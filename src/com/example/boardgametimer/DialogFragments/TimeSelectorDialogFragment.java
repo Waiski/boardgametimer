@@ -1,4 +1,4 @@
-package com.example.boardgametimer;
+package com.example.boardgametimer.DialogFragments;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -9,7 +9,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.NumberPicker;
 
-public class TimeSelectorDialogFragment extends DialogFragment {
+import com.example.boardgametimer.GameFragment;
+import com.example.boardgametimer.R;
+
+public class TimeSelectorDialogFragment extends RetainedDialogFragment {
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -42,11 +45,4 @@ public class TimeSelectorDialogFragment extends DialogFragment {
 		});
 		return builder.create();
 	}
-
-    @Override
-    public void onDismiss(final DialogInterface dialog) {
-        super.onDismiss(dialog);
-        ( (GameFragment) getTargetFragment() ).onDismissDialog(dialog);
-    }
-
 }
