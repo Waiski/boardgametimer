@@ -1,5 +1,6 @@
 package com.example.boardgametimer;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import android.util.Log;
 
@@ -8,16 +9,16 @@ public class Game {
 	private static final int COUNTDOWN_INTERVAL=100;
 	private static final int FIRST_ROUND=1;
 	private ArrayList<Player> players;
-    private ArrayList<Player> passingOrder;
-	private Player pausedPlayer;
 	private long time;
 	private int round;
 	private boolean onBreak;
     private boolean paused;
+    public static TurnHandler turns;
 
 	public Game(long timeInMillis) {
 		this.time = timeInMillis;
         this.players = new ArrayList<Player>();
+        turns = new TurnHandler(this);
 		reset();
 	}
 
@@ -26,11 +27,9 @@ public class Game {
      * @return this game
      */
     public Game reset() {
-        this.pausedPlayer = null;
         this.round = FIRST_ROUND;
         this.onBreak = true;
         this.paused = false;
-        this.passingOrder = new ArrayList<Player>();
         return this;
     }
 	
@@ -38,7 +37,6 @@ public class Game {
 	{
 		Player player = new Player(name, this.time, COUNTDOWN_INTERVAL, this);
 		players.add(player);
-		updateNextChain();
 		return this;
 	}
 
@@ -48,55 +46,24 @@ public class Game {
      * @return this game
      */
     public Game removePlayer(Player player) {
-        passingOrder.remove(player);
+        turns.detach(player);
         // This removes the player from the adapter too
-        players.remove(player);
         // If this was the only player, reset this game
+        // TODO: A reset function for GameFragment, use it instead.
         if (players.isEmpty())
             reset();
-        updateNextChain();
-        return this;
-    }
-
-    /**
-     * Reset next player for each player in the game
-     * @return this game
-     */
-    public Game updateNextChain() {
-        if (!players.isEmpty()) {
-            // Loop everything but the last one
-            for (int position = 0; position < players.size() - 1; position++)
-                players.get(position).setNext(players.get(position + 1));
-            // Set the first one as next for the last one
-            players.get(players.size() - 1).setNext(players.get(0));
-        }
         return this;
     }
 	
 	public Game resume() {
-        if (players.isEmpty())
-            return this;
-		this.onBreak = false;
-        if (this.paused)
-            this.pausedPlayer.resume();
-        else {
-            this.getFirstPlayer().resume();
-            // Reset the passing order on new round start
-            // Note: this must be done _after_ getFirstPlayer().resume(), since it relies on the passing order
-            this.passingOrder.clear();
-        }
-        this.paused = false;
+        turns.resume();
+        paused = false;
 		return this;
 	}
 
     public Game pause() {
-        this.paused = true;
-        for(Player player : this.players) {
-            if (player.isRunning()) {
-                this.pausedPlayer = player.pause();
-                break;
-            }
-        }
+        turns.pause();
+        paused = true;
         return this;
     }
 	
@@ -104,7 +71,6 @@ public class Game {
 		this.round++;
 		for(Player player : this.players)
 			player.reset();
-		this.getFirstPlayer().setActive();
 		this.onBreak = true;
 	}
 	
@@ -120,14 +86,6 @@ public class Game {
         return !this.players.isEmpty();
     }
 	
-	public Player getFirstPlayer() {
-        if (players.isEmpty())
-            return null;
-        if (passingOrder.isEmpty())
-            return players.get(0);
-        return passingOrder.get(0);
-	}
-	
 	public int getRound() {
 		return this.round;
 	}
@@ -141,30 +99,139 @@ public class Game {
 		for(Player player : this.players)
 			player.setTime(timeInMillis);
 	}
-	
-	/**
-	 * This method is called anytime a player passes, before the player
-	 * is marked as passed.
-	 * The first player to pass becomes the new first player.
-	 * @param player
-	 * @return true if the player was last to pass.
-	 */
-	public boolean resolvePass(Player player) {
-		boolean wasLast = false;
 
-        if (passingOrder.isEmpty())
-            Log.i(TAG, "First passer: " + player.getName());
-        if (passingOrder.size() == players.size() - 1)
-            wasLast = true;
+    public static class TurnHandler  {
 
-        // Make sure that the same player won't be added to the passer list twice
-        if (passingOrder.indexOf(player) == -1)
-            passingOrder.add(player);
+        private WeakReference<Game> game;
+        private Player currentPlayer;
+        private Player interruptedPlayer;
+        private ArrayList<Player> passingOrder;
+        public TurnHandler(Game game) {
+            this.game = new WeakReference<Game>(game);
+            this.currentPlayer = null;
+            this.interruptedPlayer = null;
+            this.passingOrder = new ArrayList<Player>();
+        }
 
-		if (wasLast)
-			Log.i(TAG, "Last passer: " + player.getName() + "\nThe round " + this.round + " ends.");
+        public void next() {
+            Game theGame = game.get();
+            if (!theGame.hasPlayers())
+                return;
+            if (!theGame.isOnBreak()) {
+                // Always calling pass() on already-passed players makes sure the game is put on break if necessary
+                if (currentPlayer.hasPassed()) {
+                    pass();
+                    return;
+                }
+                currentPlayer.pause().setInactive();
+            }
+            currentPlayer = findNextPlayer().resume();
+            // Passing order must be cleared only after the next player has been found
+            if (theGame.isOnBreak()) {
+                passingOrder.clear();
+                theGame.onBreak = false;
+            }
+            interruptedPlayer = null;
+        }
 
-		return wasLast;
-	}
+        public void pass() {
+            Game theGame = game.get();
+            if (!theGame.hasPlayers() || theGame.isOnBreak())
+                return;
+            currentPlayer.setPassed().pause();
+            if (passingOrder.indexOf(currentPlayer) == -1)
+                passingOrder.add(currentPlayer);
+            if (passingOrder.size() == theGame.players.size()) {
+                Log.i(TAG, "Last passer: " + currentPlayer.getName() + "\nThe round " + theGame.round + " ends.");
+                currentPlayer = null;
+                theGame.nextRound();
+                passingOrder.get(0).setActive();
+            } else {
+                if (passingOrder.size() == 1)
+                    Log.i(TAG, "First passer: " + currentPlayer.getName());
+                // Set next player as current, but don't resume the game if it's paused
+                currentPlayer = findNextPlayer();
+                if (!theGame.isPaused())
+                    currentPlayer.resume();
+            }
+            interruptedPlayer = null;
+        }
 
+        public void detach(Player player) {
+            // Passing inevitably removes the player from being current
+            if (player == currentPlayer)
+                pass();
+            // If removing the first passer, who isn't the only player, during a break
+            if (game.get().isOnBreak() && passingOrder.indexOf(player) == 0 && passingOrder.size() > 1)
+                passingOrder.get(1).setActive();
+            passingOrder.remove(player);
+            // This removes the player from the adapter too, as they reference the same ArrayList
+            game.get().players.remove(player);
+            // Since it's been removed from players list, findNextNonPassed cannot find this player
+            if (player == interruptedPlayer)
+                interruptedPlayer = findNextNonPassedFrom(interruptedPlayer);
+        }
+
+        public void jumpTo(Player player) {
+            if (game.get().isOnBreak() || player == currentPlayer)
+                return;
+            // If some player was already interrupted, the turn will return to him, otherwise:
+            if (interruptedPlayer == null)
+                interruptedPlayer = currentPlayer;
+            currentPlayer.interrupt();
+            currentPlayer = player.resume();
+        }
+
+        public void pause() {
+            if (!game.get().isOnBreak())
+                currentPlayer.pause();
+        }
+
+        public void resume() {
+            if (game.get().isOnBreak())
+                next();
+            else if (game.get().isPaused())
+                currentPlayer.resume();
+        }
+
+        public Player getActivePlayer() {
+            if (!game.get().isOnBreak())
+                return currentPlayer;
+            return getRoundStarter();
+        }
+
+        private Player findNextPlayer() {
+            // This function only finds the next player, never sets any field values.
+            Game theGame = game.get();
+            if (!theGame.hasPlayers())
+                return null;
+            if (interruptedPlayer != null)
+                return interruptedPlayer;
+            if (theGame.isOnBreak())
+                return getRoundStarter();
+            return findNextNonPassedFrom(currentPlayer);
+        }
+
+        private Player findNextNonPassedFrom(Player player) {
+            // Loop through players to find the next non-passed one
+            ArrayList<Player> thePlayers = game.get().players;
+            int startPos = thePlayers.indexOf(player);
+            int size = thePlayers.size();
+            int pointer;
+            Player nextPlayer;
+            for (int i = startPos + 1; i <= size + startPos; i++) {
+                pointer = i % size;
+                nextPlayer = thePlayers.get(pointer);
+                if (!nextPlayer.hasPassed())
+                    return nextPlayer;
+            }
+            return null;
+        }
+
+        private Player getRoundStarter() {
+            if (passingOrder.isEmpty())
+                return game.get().players.get(0);
+            return passingOrder.get(0);
+        }
+    }
 }

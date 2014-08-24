@@ -3,6 +3,7 @@ package com.example.boardgametimer;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,15 +24,13 @@ import com.example.boardgametimer.DialogFragments.RetainedDialogFragment;
 import com.example.boardgametimer.DialogFragments.TimeSelectorDialogFragment;
 
 public class GameFragment extends Fragment {
-	
+    private static final String TAG = "GameFragment";
 	private View view;
 	private Button timerButton, passButton;
     private ImageButton pauseButton;
 	private TextView roundView;
     private LinearLayout pauseOverlay;
 	private Game game;
-	private Player currentPlayer;
-    private Player interruptedPlayer;
 	private PlayerArrayAdapter playersAdapter;
     private ListView playersView;
 
@@ -55,22 +54,10 @@ public class GameFragment extends Fragment {
 			public void onClick(View v) {
                 if (!game.hasPlayers())
                     return;
-				if (currentPlayer != null && currentPlayer.isRunning()) {
-                    if (interruptedPlayer == null)
-					    currentPlayer = currentPlayer.endAction();
-                    else
-                        currentPlayer = currentPlayer.endAction(interruptedPlayer);
-                    interruptedPlayer = null;
-                    showCurrentPlayer();
-				} else {
-                    // Begin a new round
-                    currentPlayer = game.getFirstPlayer();
-					timerButton.setText(getResources().getString(R.string.next));
-					roundView.setText(getResources().getString(R.string.roundNo) + " " + game.getRound());
-					passButton.setVisibility(View.VISIBLE);
-                    pauseButton.setVisibility(View.VISIBLE);
-					game.resume();
-				}
+				if (game.isOnBreak())
+                    startRound();
+                game.turns.next();
+                showPlayer(game.turns.getActivePlayer());
 			}
 		});
         passButton.setOnClickListener(new View.OnClickListener() {
@@ -79,20 +66,10 @@ public class GameFragment extends Fragment {
 			public void onClick(View arg0) {
                 if (!game.hasPlayers())
                     return;
-                if (interruptedPlayer == null)
-                    currentPlayer = currentPlayer.passTurn();
-                else
-                    currentPlayer = currentPlayer.passTurn(interruptedPlayer);
-                interruptedPlayer = null;
-                showCurrentPlayer();
-				if (game.isOnBreak()) {
-                    // End round
-                    currentPlayer = null;
-                    roundView.append(" " + getResources().getString(R.string.ended));
-                    timerButton.setText(getResources().getString(R.string.start_round)+" "+game.getRound());
-					passButton.setVisibility(View.INVISIBLE);
-                    pauseButton.setVisibility(View.INVISIBLE);
-				}
+                game.turns.pass();
+                showPlayer(game.turns.getActivePlayer());
+				if (game.isOnBreak())
+                    endRound();
 			}
 		});
         pauseButton.setOnClickListener(new View.OnClickListener() {
@@ -117,12 +94,25 @@ public class GameFragment extends Fragment {
 		return view;
 	}
 
+    private void startRound() {
+        timerButton.setText(getResources().getString(R.string.next));
+        roundView.setText(getResources().getString(R.string.roundNo) + " " + game.getRound());
+        passButton.setVisibility(View.VISIBLE);
+        pauseButton.setVisibility(View.VISIBLE);
+    }
+
+    private void endRound() {
+        roundView.append(" " + getResources().getString(R.string.ended));
+        timerButton.setText(getResources().getString(R.string.start_round)+" "+game.getRound());
+        passButton.setVisibility(View.INVISIBLE);
+        pauseButton.setVisibility(View.INVISIBLE);
+    }
+
     /**
-     * Scrolls the list to the position of the current player
+     * Scrolls the list to the position of the player
      */
-    public void showCurrentPlayer() {
-        if (currentPlayer != null)
-            playersView.smoothScrollToPosition(playersAdapter.getPosition(currentPlayer));
+    public void showPlayer(Player player) {
+        playersView.smoothScrollToPosition(playersAdapter.getPosition(player));
     }
 	
 	public void onCreate(Bundle savedInstanceState) {
@@ -140,23 +130,11 @@ public class GameFragment extends Fragment {
         		getActivity().getApplicationContext(),
                 game.getPlayers()
         );
-        
-        currentPlayer = game.getFirstPlayer();
     }
     
     public void setTime(int hours, int minutes) {
     	long timeInMillis = 60*60*1000*hours + 60*1000*minutes;
     	game.setTime(timeInMillis);
-        // Resume the game if it was previously paused by something other than the pause button
-        if (!game.isOnBreak() && game.isPaused() && pauseOverlay.getVisibility() != View.VISIBLE)
-            game.resume();
-    }
-
-    public void activatePlayer(Player newActivePlayer) {
-        if (!game.isOnBreak() && newActivePlayer != currentPlayer) {
-            interruptedPlayer = currentPlayer.interrupt();
-            currentPlayer = newActivePlayer.resume();
-        }
     }
 
     /**
@@ -164,18 +142,14 @@ public class GameFragment extends Fragment {
      * @param player
      */
     public void removePlayer(Player player) {
-        System.out.println("Removing player: " + player.getName());
-        if (player == interruptedPlayer)
-            interruptedPlayer = player.getNext();
-        // If removing the current player, pass so that the game can resolve it's state properly
-        // This also unsets currentPlayer if this was the last player, and the game is put on break
-        if (player == currentPlayer)
-            passButton.performClick();
-
+        Log.i(TAG, "Removing player: " + player.getName());
+        boolean wasOnBreak = game.isOnBreak();
         // Removing player from the game removes it from the adapter too, as they reference the same ArrayList<Player>
         game.removePlayer(player);
         // Notify the adapter to update the view
         playersAdapter.notifyDataSetChanged();
+        if (game.isOnBreak() && !wasOnBreak)
+            endRound();
     }
 
     private final static String REMOVE_DIALOG_NAME = "player_remove_df";
@@ -201,7 +175,6 @@ public class GameFragment extends Fragment {
     }
 
     public void onDismissDialog(DialogInterface dialog) {
-        System.out.println("Dialog dismissed");
         if (!game.isOnBreak() && game.isPaused() && pauseOverlay.getVisibility() != View.VISIBLE)
             game.resume();
     }
@@ -219,7 +192,8 @@ public class GameFragment extends Fragment {
         Player selectedPlayer = playersAdapter.getItem(info.position);
         switch (item.getItemId()) {
             case R.id.set_player_active:
-                activatePlayer(selectedPlayer);
+                if (!selectedPlayer.isRunning())
+                    Game.turns.jumpTo(selectedPlayer);
                 return true;
             case R.id.add_time:
                 showDialog(PLAYER_TIME_ADJUST_DIALOG_NAME, selectedPlayer);

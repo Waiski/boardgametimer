@@ -8,15 +8,11 @@ import android.os.SystemClock;
 import android.util.Log;
 
 
-//TODO: implement end-of-time logic
-
 public class Player {
 	private String name;
 	private long totalCountDown;
 	private long countDownInterval;
 	private GameTimerView timerView;
-	private Player next;
-	private Game game;
 	
 	private boolean isRunning;
 	private boolean hasPassed;
@@ -34,7 +30,6 @@ public class Player {
         this.timeUsedTotal = 0;
         this.timeAdjustment = 0;
         this.timeUsedThisTurn = 0;
-		this.game = game;
         this.timerView = null;
 		
 		this.isRunning = false;
@@ -54,18 +49,13 @@ public class Player {
 	
 	public void setActive()
 	{
-		this.timerView.setActive();
-	}
-	
-	public Player setNext(Player next) {
-		this.next = next;
-		return this;
+		timerView.setActive();
 	}
 
-    public Player getNext() {
-        return this.next;
+    public void setInactive() {
+        timerView.setInactive();
     }
-	
+
 	public Player setTime(long timeInMillis) {
 		this.totalCountDown = timeInMillis;
         updateTimer();
@@ -78,42 +68,6 @@ public class Player {
         return this;
     }
 	
-	public Player endAction() {
-		return endAction(this.next);
-	}
-
-    public Player endAction(Player nextPlayer) {
-        this.pause();
-        //only set as inactive if not passed
-        if (!this.hasPassed)
-            this.timerView.setInactive();
-        else
-            this.timerView.setPassed();
-        //if the next player has already passed, try the next one
-        if (nextPlayer.hasPassed)
-            return nextPlayer.endAction();
-
-        nextPlayer.resume();
-        return nextPlayer;
-    }
-	
-	public Player passTurn() {
-		return passTurn(this.next);
-	}
-
-    public Player passTurn(Player nextPlayer) {
-        boolean lastPass = this.game.resolvePass(this);
-        if(!lastPass) {
-            this.hasPassed = true;
-            this.timerView.setPassed();
-            return this.endAction(nextPlayer);
-        }
-        else {
-            this.game.nextRound();
-            return this.game.getFirstPlayer();
-        }
-    }
-	
 	/**
 	 * This is called in the end of the round.
 	 * @return Player
@@ -121,7 +75,6 @@ public class Player {
 	public Player reset() {
 		this.hasPassed = false;
 		this.timerView.setInactive();
-		this.pause();
 		return this;
 	}
 	
@@ -149,8 +102,17 @@ public class Player {
         return this;
 	}
 
-    public final synchronized Player interrupt() {
-        timerView.setInactive();
+    public final Player setPassed() {
+        hasPassed = true;
+        timerView.setPassed();
+        return this;
+    }
+
+    public final Player interrupt() {
+        if (hasPassed())
+            timerView.setPassed();
+        else
+            timerView.setInactive();
         return pause();
     }
 	
@@ -182,7 +144,6 @@ public class Player {
             this.timerView.setNotOutOfTime();
             isOutOfTime = false;
         }
-        return;
     }
 	
 	private static final int MSG = 1;
