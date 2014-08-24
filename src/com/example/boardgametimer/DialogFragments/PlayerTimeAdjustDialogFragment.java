@@ -18,7 +18,8 @@ public class PlayerTimeAdjustDialogFragment extends RetainedDialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        String message = getResources().getString(R.string.adjust_player_time) + " " +  player.getName();
+        AlertDialog.Builder builder = makeDefaultBuilder(message);
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View v = inflater.inflate(R.layout.player_time_dialog, null);
         builder.setView(v);
@@ -30,15 +31,6 @@ public class PlayerTimeAdjustDialogFragment extends RetainedDialogFragment {
         secondPicker.setValue(0);
         secondPicker.setMaxValue(59);
         final ToggleButton plusOrMinus = (ToggleButton)v.findViewById(R.id.plusOrMinus);
-        String message = getResources().getString(R.string.adjust_player_time) + " " +  player.getName();
-        builder.setMessage(message);
-        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dismiss();
-            }
-        });
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 
             @Override

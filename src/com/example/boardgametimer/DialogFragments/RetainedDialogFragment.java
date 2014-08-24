@@ -1,11 +1,13 @@
 package com.example.boardgametimer.DialogFragments;
 
+import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
 import com.example.boardgametimer.GameFragment;
 import com.example.boardgametimer.Player;
+import com.example.boardgametimer.R;
 
 public class RetainedDialogFragment extends DialogFragment {
     protected Player player;
@@ -35,6 +37,23 @@ public class RetainedDialogFragment extends DialogFragment {
     public void onDismiss(final DialogInterface dialog) {
         super.onDismiss(dialog);
         ( (GameFragment) getTargetFragment() ).onDismissDialog(dialog);
+    }
+
+    protected AlertDialog.Builder makeDefaultBuilder(String message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(message);
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dismiss();
+            }
+        });
+        return builder;
+    }
+
+    protected AlertDialog.Builder makeDefaultBuilder(int messageId) {
+        return makeDefaultBuilder(getResources().getString(messageId));
     }
 
     public void setPlayer(Player player) {

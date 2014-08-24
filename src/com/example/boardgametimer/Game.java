@@ -19,7 +19,7 @@ public class Game {
 		this.time = timeInMillis;
         this.players = new ArrayList<Player>();
         turns = new TurnHandler(this);
-		reset();
+		this.reset();
 	}
 
     /**
@@ -27,31 +27,23 @@ public class Game {
      * @return this game
      */
     public Game reset() {
-        this.round = FIRST_ROUND;
-        this.onBreak = true;
-        this.paused = false;
+        round = FIRST_ROUND;
+        onBreak = true;
+        paused = false;
+        for (Player player : players)
+            player.totalReset();
+        turns.reset();
         return this;
     }
 	
-	public Game addPlayer(String name)
-	{
-		Player player = new Player(name, this.time, COUNTDOWN_INTERVAL, this);
+	public Game addPlayer(String name) {
+		Player player = new Player(name, this.time, COUNTDOWN_INTERVAL);
 		players.add(player);
 		return this;
 	}
 
-    /**
-     *
-     * @param player
-     * @return this game
-     */
     public Game removePlayer(Player player) {
         turns.detach(player);
-        // This removes the player from the adapter too
-        // If this was the only player, reset this game
-        // TODO: A reset function for GameFragment, use it instead.
-        if (players.isEmpty())
-            reset();
         return this;
     }
 	
@@ -108,9 +100,16 @@ public class Game {
         private ArrayList<Player> passingOrder;
         public TurnHandler(Game game) {
             this.game = new WeakReference<Game>(game);
-            this.currentPlayer = null;
-            this.interruptedPlayer = null;
-            this.passingOrder = new ArrayList<Player>();
+            this.reset();
+        }
+
+        public void reset() {
+            currentPlayer = null;
+            interruptedPlayer = null;
+            if (passingOrder != null)
+                passingOrder.clear();
+            else
+                passingOrder = new ArrayList<Player>();
         }
 
         public void next() {

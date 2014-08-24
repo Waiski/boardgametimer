@@ -23,18 +23,23 @@ public class Player {
     private long timeAdjustment;
     private long timeUsedThisTurn;
 	
-	public Player(String name, long totalCountDown, long countDownInterval, Game game) {
+	public Player(String name, long totalCountDown, long countDownInterval) {
 		this.name = name;
 		this.totalCountDown = totalCountDown;
 		this.countDownInterval = countDownInterval;
+        totalReset();
+	}
+
+    public Player totalReset() {
         this.timeUsedTotal = 0;
         this.timeAdjustment = 0;
         this.timeUsedThisTurn = 0;
         this.timerView = null;
-		
-		this.isRunning = false;
-		this.hasPassed = false;
-	}
+        this.isRunning = false;
+        this.hasPassed = false;
+        handler.removeMessages(MSG);
+        return this;
+    }
 
     public void setTimerView(GameTimerView timer) {
         this.timerView = timer;

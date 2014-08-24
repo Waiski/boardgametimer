@@ -6,6 +6,7 @@
     <string name="app_name">Board Game Timer</string>
     <string name="cancel">Cancel</string>
     <string name="confirm_player_remove">Are you sure you want to remove</string>
+    <string name="confirm_reset">Are you sure you want to reset the game?</string>
     <string name="ended">ended.</string>
     <string name="game_paused">Game paused</string>
     <string name="hello_world">Hello world!</string>
@@ -16,6 +17,7 @@
     <string name="pass_turn">Pass turn</string>
     <string name="pause">Pause game</string>
     <string name="remove_player">Remove player</string>
+    <string name="reset_game">Reset game</string>
     <string name="roundNo">Round</string>
     <string name="select_game_time_per_player">Select game time per player</string>
     <string name="set_game_time">Select game time</string>

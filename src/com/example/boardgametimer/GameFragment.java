@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.boardgametimer.DialogFragments.GameResetDialogFragment;
 import com.example.boardgametimer.DialogFragments.PlayerRemoveDialogFragment;
 import com.example.boardgametimer.DialogFragments.PlayerTimeAdjustDialogFragment;
 import com.example.boardgametimer.DialogFragments.RetainedDialogFragment;
@@ -94,6 +95,21 @@ public class GameFragment extends Fragment {
 		return view;
 	}
 
+    /**
+     * Resets the game and the view to initial state while
+     * keeping game settings, such as players list and game time.
+     */
+    public void resetGame() {
+        view = null;
+        game.reset();
+        // Re-attaching this re-creates the view, while keeping the instance retained
+        getFragmentManager()
+                .beginTransaction()
+                .detach(this)
+                .attach(this)
+                .commit();
+    }
+
     private void startRound() {
         timerButton.setText(getResources().getString(R.string.next));
         roundView.setText(getResources().getString(R.string.roundNo) + " " + game.getRound());
@@ -148,13 +164,17 @@ public class GameFragment extends Fragment {
         game.removePlayer(player);
         // Notify the adapter to update the view
         playersAdapter.notifyDataSetChanged();
-        if (game.isOnBreak() && !wasOnBreak)
+        // Deduce changes to view states from game states
+        if (!game.hasPlayers())
+            resetGame();
+        else if (game.isOnBreak() && !wasOnBreak)
             endRound();
     }
 
     private final static String REMOVE_DIALOG_NAME = "player_remove_df";
     private final static String PLAYER_TIME_ADJUST_DIALOG_NAME = "adjust_time_df";
     private final static String TIME_SELECTOR_DIALOG_NAME = "game_time_selector_df";
+    private final static String GAME_RESET_DIALOG_NAME = "game_reset_df";
 
     public void showDialog(String dialogName, Player player) {
         if (!game.isOnBreak())
@@ -166,6 +186,8 @@ public class GameFragment extends Fragment {
             dialog = new PlayerTimeAdjustDialogFragment();
         else if (dialogName.equals(TIME_SELECTOR_DIALOG_NAME))
             dialog = new TimeSelectorDialogFragment();
+        else if (dialogName.equals(GAME_RESET_DIALOG_NAME))
+            dialog = new GameResetDialogFragment();
         else
             return;
         if (player != null)
@@ -221,6 +243,8 @@ public class GameFragment extends Fragment {
         int id = item.getItemId();
         if (id == R.id.time)
             showDialog(TIME_SELECTOR_DIALOG_NAME, null);
+        else if (id == R.id.reset)
+            showDialog(GAME_RESET_DIALOG_NAME, null);
         else if (id == R.id.action_settings)
             return true;
         return super.onOptionsItemSelected(item);

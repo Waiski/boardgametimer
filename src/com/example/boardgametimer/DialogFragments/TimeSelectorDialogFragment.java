@@ -15,7 +15,7 @@ import com.example.boardgametimer.R;
 public class TimeSelectorDialogFragment extends RetainedDialogFragment {
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = makeDefaultBuilder(R.string.select_game_time_per_player);
 		LayoutInflater inflater = getActivity().getLayoutInflater();
 		View v = inflater.inflate(R.layout.dialog_time, null);
 		builder.setView(v);
@@ -26,16 +26,6 @@ public class TimeSelectorDialogFragment extends RetainedDialogFragment {
 		final NumberPicker minutePicker = (NumberPicker)v.findViewById(R.id.minutePicker);
 		minutePicker.setValue(55);
 		minutePicker.setMaxValue(59);
-		
-		builder.setMessage(R.string.select_game_time_per_player);
-		builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dismiss();
-				
-			}
-		});
 		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 			
 			@Override
