@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
+import com.example.boardgametimer.dialogfragment.ConfirmExitDialogFragment;
+
 
 public class MainActivity extends FragmentActivity {
 	
@@ -21,5 +23,11 @@ public class MainActivity extends FragmentActivity {
         	fragment = new GameFragment();
         	fm.beginTransaction().add(R.id.fragment_container, (Fragment)fragment, TAG_GAME_FRAGMENT).commit();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        ConfirmExitDialogFragment dialog = new ConfirmExitDialogFragment();
+        dialog.show(getFragmentManager(), "confirm_exit_df");
     }
 }

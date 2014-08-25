@@ -36,7 +36,8 @@ public class RetainedDialogFragment extends DialogFragment {
     @Override
     public void onDismiss(final DialogInterface dialog) {
         super.onDismiss(dialog);
-        ( (GameFragment) getTargetFragment() ).onDismissDialog(dialog);
+        if (getTargetFragment() != null)
+            ( (GameFragment) getTargetFragment() ).onDismissDialog(dialog);
     }
 
     protected AlertDialog.Builder makeDefaultBuilder(String message) {
