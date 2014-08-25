@@ -18,11 +18,11 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.example.boardgametimer.DialogFragments.GameResetDialogFragment;
-import com.example.boardgametimer.DialogFragments.PlayerRemoveDialogFragment;
-import com.example.boardgametimer.DialogFragments.PlayerTimeAdjustDialogFragment;
-import com.example.boardgametimer.DialogFragments.RetainedDialogFragment;
-import com.example.boardgametimer.DialogFragments.TimeSelectorDialogFragment;
+import com.example.boardgametimer.dialogfragment.GameResetDialogFragment;
+import com.example.boardgametimer.dialogfragment.PlayerRemoveDialogFragment;
+import com.example.boardgametimer.dialogfragment.PlayerTimeAdjustDialogFragment;
+import com.example.boardgametimer.dialogfragment.RetainedDialogFragment;
+import com.example.boardgametimer.dialogfragment.TimeSelectorDialogFragment;
 
 public class GameFragment extends Fragment {
     private static final String TAG = "GameFragment";

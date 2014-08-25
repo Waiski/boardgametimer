@@ -1,4 +1,4 @@
-package com.example.boardgametimer.DialogFragments;
+package com.example.boardgametimer.dialogfragment;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
