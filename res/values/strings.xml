@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="action_settings">Settings</string>
+	<string name="add_player">Add player</string>
     <string name="adjust_player_time">Add/subtract time for</string>
     <string name="adjust_time">Adjust player time</string>
     <string name="app_name">Board Game Timer</string>
     <string name="cancel">Cancel</string>
     <string name="confirm_player_remove">Are you sure you want to remove</string>
     <string name="confirm_reset">Are you sure you want to reset the game?</string>
+    <string name="done">Done</string>
     <string name="ended">ended.</string>
     <string name="game_paused">Game paused</string>
     <string name="hello_world">Hello world!</string>

@@ -19,6 +19,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.boardgametimer.dialogfragment.GameResetDialogFragment;
+import com.example.boardgametimer.dialogfragment.PlayerAddDialogFragment;
 import com.example.boardgametimer.dialogfragment.PlayerRemoveDialogFragment;
 import com.example.boardgametimer.dialogfragment.PlayerTimeAdjustDialogFragment;
 import com.example.boardgametimer.dialogfragment.RetainedDialogFragment;
@@ -137,10 +138,6 @@ public class GameFragment extends Fragment {
         setHasOptionsMenu(true);
         
         game = new Game(60*60*1000);
-        game.addPlayer("Matti V.");
-        game.addPlayer("Ilari A.");
-        game.addPlayer("Kristian S.");
-        game.addPlayer("Valtter V.");
         
         playersAdapter = new PlayerArrayAdapter(
         		getActivity().getApplicationContext(),
@@ -151,6 +148,11 @@ public class GameFragment extends Fragment {
     public void setTime(int hours, int minutes) {
     	long timeInMillis = 60*60*1000*hours + 60*1000*minutes;
     	game.setTime(timeInMillis);
+    }
+    
+    public void addPlayer(String name) {
+        game.addPlayer(name);
+        playersAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -171,10 +173,11 @@ public class GameFragment extends Fragment {
             endRound();
     }
 
-    private final static String REMOVE_DIALOG_NAME = "player_remove_df";
-    private final static String PLAYER_TIME_ADJUST_DIALOG_NAME = "adjust_time_df";
-    private final static String TIME_SELECTOR_DIALOG_NAME = "game_time_selector_df";
-    private final static String GAME_RESET_DIALOG_NAME = "game_reset_df";
+    public final static String REMOVE_DIALOG_NAME = "player_remove_df";
+    public final static String PLAYER_TIME_ADJUST_DIALOG_NAME = "adjust_time_df";
+    public final static String TIME_SELECTOR_DIALOG_NAME = "game_time_selector_df";
+    public final static String GAME_RESET_DIALOG_NAME = "game_reset_df";
+    public final static String ADD_PLAYER_DIALOG_NAME = "add_player_df";
 
     public void showDialog(String dialogName, Player player) {
         if (!game.isOnBreak())
@@ -188,6 +191,8 @@ public class GameFragment extends Fragment {
             dialog = new TimeSelectorDialogFragment();
         else if (dialogName.equals(GAME_RESET_DIALOG_NAME))
             dialog = new GameResetDialogFragment();
+        else if (dialogName.equals(ADD_PLAYER_DIALOG_NAME))
+            dialog = new PlayerAddDialogFragment();
         else
             return;
         if (player != null)
@@ -245,6 +250,8 @@ public class GameFragment extends Fragment {
             showDialog(TIME_SELECTOR_DIALOG_NAME, null);
         else if (id == R.id.reset)
             showDialog(GAME_RESET_DIALOG_NAME, null);
+        else if (id == R.id.add_player)
+            showDialog(ADD_PLAYER_DIALOG_NAME, null);
         else if (id == R.id.action_settings)
             return true;
         return super.onOptionsItemSelected(item);
