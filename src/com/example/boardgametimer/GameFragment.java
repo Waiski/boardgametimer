@@ -93,6 +93,11 @@ public class GameFragment extends Fragment {
                     game.resume();
             }
         });
+        playersView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                GameFragment.this.getActivity().openContextMenu(view);
+            }
+        });
 		return view;
 	}
 
