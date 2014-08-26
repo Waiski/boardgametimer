@@ -34,13 +34,13 @@ public class GameFragment extends Fragment {
     private LinearLayout pauseOverlay;
 	private Game game;
 	private PlayerArrayAdapter playersAdapter;
-    private ListView playersView;
+    private SortableListView playersView;
 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) { 
         if (view != null)
             return view;
         view = inflater.inflate(R.layout.fragment_main, container, false);
-		playersView = (ListView) view.findViewById(R.id.playerList);
+		playersView = (SortableListView) view.findViewById(R.id.playerList);
 		playersView.setAdapter(playersAdapter);
         registerForContextMenu(playersView);
 		timerButton = (Button)view.findViewById(R.id.timerButton);
@@ -93,11 +93,12 @@ public class GameFragment extends Fragment {
                     game.resume();
             }
         });
-        playersView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        /*playersView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                GameFragment.this.getActivity().openContextMenu(view);
+                //GameFragment.this.getActivity().openContextMenu(view);
+                Log.i(TAG, "click");
             }
-        });
+        });*/
 		return view;
 	}
 
@@ -156,7 +157,9 @@ public class GameFragment extends Fragment {
     }
     
     public void addPlayer(String name) {
-        game.addPlayer(name);
+        Player player = game.addPlayer(name);
+        playersView.setPlayerList(game.getPlayers());
+        playersAdapter.addToMap(player);
         playersAdapter.notifyDataSetChanged();
     }
 

@@ -36,10 +36,10 @@ public class Game {
         return this;
     }
 	
-	public Game addPlayer(String name) {
+	public Player addPlayer(String name) {
 		Player player = new Player(name, this.time, COUNTDOWN_INTERVAL);
 		players.add(player);
-		return this;
+		return player;
 	}
 
     public Game removePlayer(Player player) {
