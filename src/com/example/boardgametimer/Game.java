@@ -5,22 +5,22 @@ import java.util.ArrayList;
 import android.util.Log;
 
 public class Game {
-	private static final String TAG = "Game";
-	private static final int COUNTDOWN_INTERVAL=100;
-	private static final int FIRST_ROUND=1;
-	private ArrayList<Player> players;
-	private long time;
-	private int round;
-	private boolean onBreak;
+    private static final String TAG = "Game";
+    private static final int COUNTDOWN_INTERVAL=100;
+    private static final int FIRST_ROUND=1;
+    private ArrayList<Player> players;
+    private long time;
+    private int round;
+    private boolean onBreak;
     private boolean paused;
     public static TurnHandler turns;
 
-	public Game(long timeInMillis) {
-		this.time = timeInMillis;
+    public Game(long timeInMillis) {
+        this.time = timeInMillis;
         this.players = new ArrayList<Player>();
         turns = new TurnHandler(this);
-		this.reset();
-	}
+        this.reset();
+    }
 
     /**
      * Resets everything to initial state (except game settings such as player list and game time)
@@ -35,40 +35,40 @@ public class Game {
         turns.reset();
         return this;
     }
-	
-	public Player addPlayer(String name) {
-		Player player = new Player(name, this.time, COUNTDOWN_INTERVAL);
-		players.add(player);
-		return player;
-	}
+    
+    public Player addPlayer(String name) {
+        Player player = new Player(name, this.time, COUNTDOWN_INTERVAL);
+        players.add(player);
+        return player;
+    }
 
     public Game removePlayer(Player player) {
         turns.detach(player);
         return this;
     }
-	
-	public Game resume() {
+    
+    public Game resume() {
         turns.resume();
         paused = false;
-		return this;
-	}
+        return this;
+    }
 
     public Game pause() {
         turns.pause();
         paused = true;
         return this;
     }
-	
-	public void nextRound() {
-		this.round++;
-		for(Player player : this.players)
-			player.reset();
-		this.onBreak = true;
-	}
-	
-	public boolean isOnBreak() {
-		return this.onBreak;
-	}
+    
+    public void nextRound() {
+        this.round++;
+        for(Player player : this.players)
+            player.reset();
+        this.onBreak = true;
+    }
+    
+    public boolean isOnBreak() {
+        return this.onBreak;
+    }
 
     public boolean isPaused() {
         return this.paused;
@@ -77,20 +77,20 @@ public class Game {
     public boolean hasPlayers() {
         return !this.players.isEmpty();
     }
-	
-	public int getRound() {
-		return this.round;
-	}
+    
+    public int getRound() {
+        return this.round;
+    }
 
     public ArrayList<Player> getPlayers() {
         return this.players;
     }
 
-	public void setTime(long timeInMillis) {
-		this.time = timeInMillis;
-		for(Player player : this.players)
-			player.setTime(timeInMillis);
-	}
+    public void setTime(long timeInMillis) {
+        this.time = timeInMillis;
+        for(Player player : this.players)
+            player.setTime(timeInMillis);
+    }
 
     public static class TurnHandler  {
 

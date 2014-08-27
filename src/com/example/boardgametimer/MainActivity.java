@@ -9,9 +9,9 @@ import com.example.boardgametimer.dialogfragment.ConfirmExitDialogFragment;
 
 
 public class MainActivity extends FragmentActivity {
-	
-	private GameFragment fragment;
-	private static final String TAG_GAME_FRAGMENT="game_fragment";
+    
+    private GameFragment fragment;
+    private static final String TAG_GAME_FRAGMENT="game_fragment";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -20,8 +20,8 @@ public class MainActivity extends FragmentActivity {
         FragmentManager fm = getFragmentManager();
         fragment = (GameFragment)fm.findFragmentByTag(TAG_GAME_FRAGMENT);
         if (fragment == null) {
-        	fragment = new GameFragment();
-        	fm.beginTransaction().add(R.id.fragment_container, (Fragment)fragment, TAG_GAME_FRAGMENT).commit();
+            fragment = new GameFragment();
+            fm.beginTransaction().add(R.id.fragment_container, (Fragment)fragment, TAG_GAME_FRAGMENT).commit();
         }
     }
 

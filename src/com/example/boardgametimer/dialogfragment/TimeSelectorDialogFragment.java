@@ -13,26 +13,26 @@ import com.example.boardgametimer.GameFragment;
 import com.example.boardgametimer.R;
 
 public class TimeSelectorDialogFragment extends RetainedDialogFragment {
-	@Override
-	public Dialog onCreateDialog(Bundle savedInstanceState) {
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = makeDefaultBuilder(R.string.select_game_time_per_player);
-		LayoutInflater inflater = getActivity().getLayoutInflater();
-		View v = inflater.inflate(R.layout.dialog_time, null);
-		builder.setView(v);
-		
-		final NumberPicker hourPicker = (NumberPicker)v.findViewById(R.id.hourPicker);
-		hourPicker.setValue(0);
-		hourPicker.setMaxValue(5);
-		final NumberPicker minutePicker = (NumberPicker)v.findViewById(R.id.minutePicker);
-		minutePicker.setValue(55);
-		minutePicker.setMaxValue(59);
-		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        View v = inflater.inflate(R.layout.dialog_time, null);
+        builder.setView(v);
+        
+        final NumberPicker hourPicker = (NumberPicker)v.findViewById(R.id.hourPicker);
+        hourPicker.setValue(0);
+        hourPicker.setMaxValue(5);
+        final NumberPicker minutePicker = (NumberPicker)v.findViewById(R.id.minutePicker);
+        minutePicker.setValue(55);
+        minutePicker.setMaxValue(59);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
                 ( (GameFragment) getTargetFragment() ).setTime(hourPicker.getValue(), minutePicker.getValue());
-			}
-		});
-		return builder.create();
-	}
+            }
+        });
+        return builder.create();
+    }
 }

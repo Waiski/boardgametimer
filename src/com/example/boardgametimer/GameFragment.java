@@ -27,23 +27,23 @@ import com.example.boardgametimer.dialogfragment.TimeSelectorDialogFragment;
 
 public class GameFragment extends Fragment {
     private static final String TAG = "GameFragment";
-	private View view;
-	private Button timerButton, passButton;
+    private View view;
+    private Button timerButton, passButton;
     private ImageButton pauseButton;
-	private TextView roundView;
+    private TextView roundView;
     private LinearLayout pauseOverlay;
-	private Game game;
-	private PlayerArrayAdapter playersAdapter;
+    private Game game;
+    private PlayerArrayAdapter playersAdapter;
     private SortableListView playersView;
 
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) { 
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) { 
         if (view != null)
             return view;
         view = inflater.inflate(R.layout.fragment_main, container, false);
-		playersView = (SortableListView) view.findViewById(R.id.playerList);
-		playersView.setAdapter(playersAdapter);
+        playersView = (SortableListView) view.findViewById(R.id.playerList);
+        playersView.setAdapter(playersAdapter);
         registerForContextMenu(playersView);
-		timerButton = (Button)view.findViewById(R.id.timerButton);
+        timerButton = (Button)view.findViewById(R.id.timerButton);
         passButton = (Button)view.findViewById(R.id.passButton);
         pauseButton = (ImageButton)view.findViewById(R.id.pauseButton);
         roundView = (TextView)view.findViewById(R.id.roundView);
@@ -51,29 +51,29 @@ public class GameFragment extends Fragment {
         
         //set listeners for buttons
         timerButton.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
+            
+            @Override
+            public void onClick(View v) {
                 if (!game.hasPlayers())
                     return;
-				if (game.isOnBreak())
+                if (game.isOnBreak())
                     startRound();
                 game.turns.next();
                 showPlayer(game.turns.getActivePlayer());
-			}
-		});
+            }
+        });
         passButton.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View arg0) {
+            
+            @Override
+            public void onClick(View arg0) {
                 if (!game.hasPlayers())
                     return;
                 game.turns.pass();
                 showPlayer(game.turns.getActivePlayer());
-				if (game.isOnBreak())
+                if (game.isOnBreak())
                     endRound();
-			}
-		});
+            }
+        });
         pauseButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -93,8 +93,8 @@ public class GameFragment extends Fragment {
                     game.resume();
             }
         });
-		return view;
-	}
+        return view;
+    }
 
     /**
      * Resets the game and the view to initial state while
@@ -131,23 +131,23 @@ public class GameFragment extends Fragment {
     public void showPlayer(Player player) {
         playersView.smoothScrollToPosition(playersAdapter.getPosition(player));
     }
-	
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setRetainInstance(true);
         setHasOptionsMenu(true);
         
         game = new Game(60*60*1000);
         
         playersAdapter = new PlayerArrayAdapter(
-        		getActivity().getApplicationContext(),
+                getActivity().getApplicationContext(),
                 game.getPlayers()
         );
     }
     
     public void setTime(int hours, int minutes) {
-    	long timeInMillis = 60*60*1000*hours + 60*1000*minutes;
-    	game.setTime(timeInMillis);
+        long timeInMillis = 60*60*1000*hours + 60*1000*minutes;
+        game.setTime(timeInMillis);
     }
     
     public void addPlayer(String name) {
@@ -238,7 +238,7 @@ public class GameFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // Inflate the menu; this adds items to the action bar if it is present.
-    	super.onCreateOptionsMenu(menu, inflater);
+        super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.options_menu, menu);
     }
 
