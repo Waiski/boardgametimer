@@ -21,6 +21,7 @@ import android.widget.TextView;
 import com.example.boardgametimer.dialogfragment.GameResetDialogFragment;
 import com.example.boardgametimer.dialogfragment.PlayerAddDialogFragment;
 import com.example.boardgametimer.dialogfragment.PlayerRemoveDialogFragment;
+import com.example.boardgametimer.dialogfragment.PlayerRenameDialogFragment;
 import com.example.boardgametimer.dialogfragment.PlayerTimeAdjustDialogFragment;
 import com.example.boardgametimer.dialogfragment.RetainedDialogFragment;
 import com.example.boardgametimer.dialogfragment.TimeSelectorDialogFragment;
@@ -174,8 +175,13 @@ public class GameFragment extends Fragment {
         else if (game.isOnBreak() && !wasOnBreak)
             endRound();
     }
+    
+    public void renamePlayer(Player player, String newName) {
+        player.setName(newName);
+    }
 
     public final static String REMOVE_DIALOG_NAME = "player_remove_df";
+    public final static String RENAME_DIALOG_NAME = "player_rename_df";
     public final static String PLAYER_TIME_ADJUST_DIALOG_NAME = "adjust_time_df";
     public final static String TIME_SELECTOR_DIALOG_NAME = "game_time_selector_df";
     public final static String GAME_RESET_DIALOG_NAME = "game_reset_df";
@@ -195,6 +201,8 @@ public class GameFragment extends Fragment {
             dialog = new GameResetDialogFragment();
         else if (dialogName.equals(ADD_PLAYER_DIALOG_NAME))
             dialog = new PlayerAddDialogFragment();
+        else if (dialogName.equals(RENAME_DIALOG_NAME))
+            dialog = new PlayerRenameDialogFragment();
         else
             return;
         if (player != null)
@@ -230,6 +238,8 @@ public class GameFragment extends Fragment {
             case R.id.remove_player:
                 showDialog(REMOVE_DIALOG_NAME, selectedPlayer);
                 return true;
+            case R.id.rename_player:
+                showDialog(RENAME_DIALOG_NAME, selectedPlayer);
             default:
                 return super.onContextItemSelected(item);
         }

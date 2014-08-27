@@ -60,6 +60,12 @@ public class Player {
     public void setInactive() {
         timerView.setInactive();
     }
+    
+    public Player setName(String newName) {
+        name = newName;
+        this.timerView.setName(newName);
+        return this;
+    }
 
     public Player setTime(long timeInMillis) {
         this.totalCountDown = timeInMillis;
