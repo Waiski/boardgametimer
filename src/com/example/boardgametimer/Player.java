@@ -24,7 +24,7 @@ public class Player {
     private long timeUsedThisTurn;
     
     public Player(String name, long totalCountDown, long countDownInterval) {
-        this.name = name;
+        this.name = name.trim();
         this.totalCountDown = totalCountDown;
         this.countDownInterval = countDownInterval;
         totalReset();
@@ -62,7 +62,7 @@ public class Player {
     }
     
     public Player setName(String newName) {
-        name = newName;
+        name = newName.trim();
         this.timerView.setName(newName);
         return this;
     }
