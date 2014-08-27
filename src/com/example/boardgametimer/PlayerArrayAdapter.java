@@ -2,7 +2,6 @@ package com.example.boardgametimer;
 
 import android.widget.ArrayAdapter;
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -38,9 +37,9 @@ public class PlayerArrayAdapter extends ArrayAdapter<Player> {
                 addToMap(player);
         }
         //remove any entries to deleted players
-        Iterator it = idMap.keySet().iterator();
+        Iterator<Player> it = idMap.keySet().iterator();
         while (it.hasNext()) {
-            Player player = (Player)it.next();
+            Player player = it.next();
             if(!players.contains(player))
                 it.remove();
         }

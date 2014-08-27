@@ -15,7 +15,6 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.boardgametimer.dialogfragment.GameResetDialogFragment;
@@ -59,8 +58,8 @@ public class GameFragment extends Fragment {
                     return;
                 if (game.isOnBreak())
                     startRound();
-                game.turns.next();
-                showPlayer(game.turns.getActivePlayer());
+                Game.turns.next();
+                showPlayer(Game.turns.getActivePlayer());
             }
         });
         passButton.setOnClickListener(new View.OnClickListener() {
@@ -69,8 +68,8 @@ public class GameFragment extends Fragment {
             public void onClick(View arg0) {
                 if (!game.hasPlayers())
                     return;
-                game.turns.pass();
-                showPlayer(game.turns.getActivePlayer());
+                Game.turns.pass();
+                showPlayer(Game.turns.getActivePlayer());
                 if (game.isOnBreak())
                     endRound();
             }
@@ -152,7 +151,7 @@ public class GameFragment extends Fragment {
     }
     
     public void addPlayer(String name) {
-        Player player = game.addPlayer(name);
+        game.addPlayer(name);
         playersView.setPlayerList(game.getPlayers());
         playersAdapter.notifyDataSetChanged();
     }

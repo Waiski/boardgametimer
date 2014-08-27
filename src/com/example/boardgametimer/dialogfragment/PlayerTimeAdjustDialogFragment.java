@@ -2,7 +2,6 @@ package com.example.boardgametimer.dialogfragment;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,8 +9,6 @@ import android.view.View;
 import android.widget.NumberPicker;
 import android.widget.ToggleButton;
 
-import com.example.boardgametimer.GameFragment;
-import com.example.boardgametimer.Player;
 import com.example.boardgametimer.R;
 
 public class PlayerTimeAdjustDialogFragment extends RetainedDialogFragment {
