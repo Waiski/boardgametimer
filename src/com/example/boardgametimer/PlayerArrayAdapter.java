@@ -9,19 +9,47 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class PlayerArrayAdapter extends ArrayAdapter<Player> {
     private final Context context;
     final int INVALID_ID = -1;
     
     HashMap<Player, Integer> idMap = new HashMap<Player, Integer>();
+    ArrayList<Player> players;
     
     public PlayerArrayAdapter(Context context, ArrayList<Player> values) {
         super(context, R.layout.timer_view, values);
         this.context = context;
-        for (int i = 0; i < values.size(); i++) {
-            idMap.put(values.get(i), i);
+        this.players = values;
+        buildIdMap();
+    }
+    
+    private void buildIdMap() {
+        for (int i = 0; i < players.size(); i++) {
+            idMap.put(players.get(i), i);
         }
+    }
+    
+    private void refreshIdMap() {
+        //add any new players to idMap
+        for(Player player : players) {
+            if(!idMap.containsKey(player))
+                addToMap(player);
+        }
+        //remove any entries to deleted players
+        Iterator it = idMap.keySet().iterator();
+        while (it.hasNext()) {
+            Player player = (Player)it.next();
+            if(!players.contains(player))
+                it.remove();
+        }
+    }
+    
+    @Override
+    public void notifyDataSetChanged() {
+        super.notifyDataSetChanged();
+        refreshIdMap();
     }
     
     @Override
@@ -37,18 +65,12 @@ public class PlayerArrayAdapter extends ArrayAdapter<Player> {
         return true;
     }
     
-    //Really ugly hack that exposes internal functionality via API.
-    //should figure out a more sensible way to update the id map when adding objects to the array
-    public void addToMap(Player player) {
+    private void addToMap(Player player) {
         int maximumId=0;
         if(!idMap.isEmpty())
             maximumId = Collections.max(idMap.values());
         
         idMap.put(player, maximumId+1);
-    }
-    
-    public void removeFromMap(Player player) {
-        idMap.remove(player);
     }
 
     @Override

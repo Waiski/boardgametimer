@@ -153,7 +153,6 @@ public class GameFragment extends Fragment {
     public void addPlayer(String name) {
         Player player = game.addPlayer(name);
         playersView.setPlayerList(game.getPlayers());
-        playersAdapter.addToMap(player);
         playersAdapter.notifyDataSetChanged();
     }
 
@@ -168,7 +167,6 @@ public class GameFragment extends Fragment {
         game.removePlayer(player);
         playersView.setPlayerList(game.getPlayers());
         // Notify the adapter to update the view
-        playersAdapter.removeFromMap(player);
         playersAdapter.notifyDataSetChanged();
         // Deduce changes to view states from game states
         if (!game.hasPlayers())
