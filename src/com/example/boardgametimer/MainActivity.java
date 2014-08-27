@@ -3,12 +3,12 @@ package com.example.boardgametimer;
 import android.app.FragmentManager;
 import android.os.Bundle;
 import android.app.Fragment;
-import android.support.v4.app.FragmentActivity;
+import android.app.Activity;
 
 import com.example.boardgametimer.dialogfragment.ConfirmExitDialogFragment;
 
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends Activity {
     
     private GameFragment fragment;
     private static final String TAG_GAME_FRAGMENT="game_fragment";
