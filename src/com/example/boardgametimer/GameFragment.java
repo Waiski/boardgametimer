@@ -93,12 +93,6 @@ public class GameFragment extends Fragment {
                     game.resume();
             }
         });
-        /*playersView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //GameFragment.this.getActivity().openContextMenu(view);
-                Log.i(TAG, "click");
-            }
-        });*/
 		return view;
 	}
 
@@ -172,6 +166,7 @@ public class GameFragment extends Fragment {
         boolean wasOnBreak = game.isOnBreak();
         // Removing player from the game removes it from the adapter too, as they reference the same ArrayList<Player>
         game.removePlayer(player);
+        playersView.setPlayerList(game.getPlayers());
         // Notify the adapter to update the view
         playersAdapter.notifyDataSetChanged();
         // Deduce changes to view states from game states

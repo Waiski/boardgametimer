@@ -2,6 +2,7 @@ package com.example.boardgametimer.dialogfragment;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.view.WindowManager.LayoutParams;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -38,7 +39,8 @@ public class PlayerAddDialogFragment extends RetainedDialogFragment {
                 
             }
         });
-
-        return builder.create();
+        Dialog dialog = builder.create();
+        dialog.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        return dialog;
     }
 }
