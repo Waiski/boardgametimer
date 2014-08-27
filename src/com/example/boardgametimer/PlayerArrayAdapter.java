@@ -46,6 +46,10 @@ public class PlayerArrayAdapter extends ArrayAdapter<Player> {
         
         idMap.put(player, maximumId+1);
     }
+    
+    public void removeFromMap(Player player) {
+        idMap.remove(player);
+    }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
