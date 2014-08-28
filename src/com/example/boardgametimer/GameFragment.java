@@ -42,6 +42,7 @@ public class GameFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_main, container, false);
         playersView = (SortableListView) view.findViewById(R.id.playerList);
         playersView.setAdapter(playersAdapter);
+        playersView.setPlayerList(game.getPlayers());
         registerForContextMenu(playersView);
         timerButton = (Button)view.findViewById(R.id.timerButton);
         passButton = (Button)view.findViewById(R.id.passButton);
