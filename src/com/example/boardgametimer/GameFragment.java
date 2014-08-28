@@ -153,7 +153,7 @@ public class GameFragment extends Fragment {
     
     public void addPlayer(String name) {
         game.addPlayer(name);
-        playersView.setPlayerList(game.getPlayers());
+        //playersView.setPlayerList(game.getPlayers());
         playersAdapter.notifyDataSetChanged();
     }
 
@@ -166,7 +166,7 @@ public class GameFragment extends Fragment {
         boolean wasOnBreak = game.isOnBreak();
         // Removing player from the game removes it from the adapter too, as they reference the same ArrayList<Player>
         game.removePlayer(player);
-        playersView.setPlayerList(game.getPlayers());
+        //playersView.setPlayerList(game.getPlayers());
         // Notify the adapter to update the view
         playersAdapter.notifyDataSetChanged();
         // Deduce changes to view states from game states
