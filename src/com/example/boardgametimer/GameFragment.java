@@ -25,6 +25,9 @@ import com.example.boardgametimer.dialogfragment.PlayerTimeAdjustDialogFragment;
 import com.example.boardgametimer.dialogfragment.RetainedDialogFragment;
 import com.example.boardgametimer.dialogfragment.TimeSelectorDialogFragment;
 
+import java.util.Collections;
+import java.util.Random;
+
 public class GameFragment extends Fragment {
     private static final String TAG = "GameFragment";
     private View view;
@@ -180,6 +183,17 @@ public class GameFragment extends Fragment {
         player.setName(newName);
     }
 
+    public void shufflePlayers() {
+        long seed = System.nanoTime();
+        Collections.shuffle(game.getPlayers(), new Random(seed));
+        playersAdapter.notifyDataSetChanged();
+    }
+
+    public void reversePlayers() {
+        Collections.reverse(game.getPlayers());
+        playersAdapter.notifyDataSetChanged();
+    }
+
     public final static String REMOVE_DIALOG_NAME = "player_remove_df";
     public final static String RENAME_DIALOG_NAME = "player_rename_df";
     public final static String PLAYER_TIME_ADJUST_DIALOG_NAME = "adjust_time_df";
@@ -264,6 +278,10 @@ public class GameFragment extends Fragment {
             showDialog(GAME_RESET_DIALOG_NAME, null);
         else if (id == R.id.add_player)
             showDialog(ADD_PLAYER_DIALOG_NAME, null);
+        else if (id == R.id.shuffle_players)
+            shufflePlayers();
+        else if (id == R.id.reverse_players)
+            reversePlayers();
         else if (id == R.id.action_settings)
             return true;
         return super.onOptionsItemSelected(item);

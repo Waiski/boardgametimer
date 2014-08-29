@@ -6,4 +6,8 @@
           android:title="@string/reset_game"/>
     <item android:id="@+id/add_player"
           android:title="@string/add_player"/>
+    <item android:id="@+id/shuffle_players"
+          android:title="@string/shuffle_players"/>
+    <item android:id="@+id/reverse_players"
+          android:title="@string/reverse_players"/>
 </menu>

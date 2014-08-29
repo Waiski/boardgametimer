@@ -20,11 +20,13 @@
     <string name="pause">Pause game</string>
     <string name="remove_player">Remove player</string>
     <string name="rename_player">Rename player</string>
+    <string name="reverse_players">Reverse players</string>
     <string name="reset_game">Reset game</string>
     <string name="roundNo">Round</string>
     <string name="select_game_time_per_player">Select game time per player</string>
     <string name="set_game_time">Select game time</string>
     <string name="set_player_active">Activate player</string>
+    <string name="shuffle_players">Shuffle players</string>
     <string name="start">Start</string>
     <string name="start_round">Start round</string>
     <string name="zero_time">00:00</string>
