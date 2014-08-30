@@ -27,20 +27,28 @@ public class PlayerAddDialogFragment extends RetainedDialogFragment {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
-               ( (GameFragment) getTargetFragment() ).addPlayer(nameField.getText().toString());
+                if (!nameField.getText().toString().matches(""))
+                    ( (GameFragment) getTargetFragment() ).addPlayer(nameField.getText().toString());
             }
         });
-        builder.setNeutralButton(R.string.next, new DialogInterface.OnClickListener() {
-            
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                ( (GameFragment) getTargetFragment() ).addPlayer(nameField.getText().toString());
-                ( (GameFragment) getTargetFragment() ).showDialog(GameFragment.ADD_PLAYER_DIALOG_NAME, null);
-                
-            }
-        });
-        Dialog dialog = builder.create();
+        builder.setNeutralButton(R.string.next, null);
+        final AlertDialog dialog = builder.create();
         dialog.getWindow().setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        // Override button click handler on dialog show to disable dialog dismissal when selecting "Next"
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface doNotOverrideDialogVariable) {
+                dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View view) {
+                        if (!nameField.getText().toString().matches(""))
+                            ( (GameFragment) getTargetFragment() ).addPlayer(nameField.getText().toString());
+                        nameField.setText(null);
+                    }
+                });
+            }
+        });
         return dialog;
     }
 }
