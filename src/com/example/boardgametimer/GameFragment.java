@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.boardgametimer.dialogfragment.GameResetDialogFragment;
 import com.example.boardgametimer.dialogfragment.PlayerAddDialogFragment;
@@ -158,6 +159,10 @@ public class GameFragment extends Fragment {
         game.addPlayer(name);
         //playersView.setPlayerList(game.getPlayers());
         playersAdapter.notifyDataSetChanged();
+        Toast.makeText(getActivity().getApplicationContext(),
+                getResources().getString(R.string.player) + " " + name + " "
+                + getResources().getString(R.string.added) + ".",
+                Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -172,6 +177,10 @@ public class GameFragment extends Fragment {
         //playersView.setPlayerList(game.getPlayers());
         // Notify the adapter to update the view
         playersAdapter.notifyDataSetChanged();
+        Toast.makeText(getActivity().getApplicationContext(),
+                getResources().getString(R.string.player) + " " + player.getName() + " "
+                + getResources().getString(R.string.removed) + ".",
+                Toast.LENGTH_SHORT).show();
         // Deduce changes to view states from game states
         if (!game.hasPlayers())
             resetGame();
@@ -191,11 +200,17 @@ public class GameFragment extends Fragment {
         long seed = System.nanoTime();
         Collections.shuffle(game.getPlayers(), new Random(seed));
         playersAdapter.notifyDataSetChanged();
+        Toast.makeText(getActivity().getApplicationContext(),
+                getResources().getString(R.string.player_order_randomized),
+                Toast.LENGTH_SHORT).show();
     }
 
     public void reversePlayers() {
         Collections.reverse(game.getPlayers());
         playersAdapter.notifyDataSetChanged();
+        Toast.makeText(getActivity().getApplicationContext(),
+                getResources().getString(R.string.player_order_reversed),
+                Toast.LENGTH_SHORT).show();
     }
 
     public final static String REMOVE_DIALOG_NAME = "player_remove_df";
