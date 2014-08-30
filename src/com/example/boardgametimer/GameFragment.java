@@ -183,6 +183,10 @@ public class GameFragment extends Fragment {
         player.setName(newName);
     }
 
+    public void unpassPlayer(Player player) {
+        Game.turns.unpass(player);
+    }
+
     public void shufflePlayers() {
         long seed = System.nanoTime();
         Collections.shuffle(game.getPlayers(), new Random(seed));
@@ -235,6 +239,12 @@ public class GameFragment extends Fragment {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater mInflater = getActivity().getMenuInflater();
         mInflater.inflate(R.menu.player_context_menu, menu);
+        // Hide unnecessary options from the context menu depending on the game state
+        Player player = playersAdapter.getItem(((AdapterView.AdapterContextMenuInfo) menuInfo).position);
+        if (game.isOnBreak() || !player.hasPassed())
+            menu.findItem(R.id.unpass_player).setVisible(false);
+        if (game.isOnBreak() || player.isRunning())
+            menu.findItem(R.id.set_player_active).setVisible(false);
     }
 
     @Override
@@ -254,6 +264,10 @@ public class GameFragment extends Fragment {
                 return true;
             case R.id.rename_player:
                 showDialog(RENAME_DIALOG_NAME, selectedPlayer);
+                return true;
+            case R.id.unpass_player:
+                unpassPlayer(selectedPlayer);
+                return true;
             default:
                 return super.onContextItemSelected(item);
         }

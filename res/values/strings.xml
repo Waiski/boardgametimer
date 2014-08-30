@@ -29,5 +29,6 @@
     <string name="shuffle_players">Shuffle players</string>
     <string name="start">Start</string>
     <string name="start_round">Start round</string>
+    <string name="unpass">Unpass</string>
     <string name="zero_time">00:00</string>
 </resources>

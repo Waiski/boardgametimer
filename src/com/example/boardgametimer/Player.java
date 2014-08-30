@@ -126,6 +126,13 @@ public class Player {
             timerView.setInactive();
         return pause();
     }
+
+    public final Player unpass() {
+        if (!isRunning)
+            timerView.setInactive();
+        hasPassed = false;
+        return this;
+    }
     
     public boolean isRunning() {
         return this.isRunning;

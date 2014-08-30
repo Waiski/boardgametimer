@@ -156,6 +156,11 @@ public class Game {
             interruptedPlayer = null;
         }
 
+        public void unpass(Player player) {
+            passingOrder.remove(player);
+            player.unpass();
+        }
+
         public void detach(Player player) {
             // Passing inevitably removes the player from being current
             if (player == currentPlayer)
